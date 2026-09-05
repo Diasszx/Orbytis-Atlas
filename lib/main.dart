@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 
+import 'core/config/app_config.dart';
+
 void main() {
-  runApp(const MainApp());
+  runApp(const OrbytisAtlasApp());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class OrbytisAtlasApp extends StatelessWidget {
+  const OrbytisAtlasApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(body: Center(child: Text('Hello World!'))),
+    return MaterialApp(
+      title: AppConfig.appName,
+      debugShowCheckedModeBanner: false,
+      home: const Scaffold(body: Center(child: Text('Orbytis Atlas'))),
     );
   }
 }
