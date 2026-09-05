@@ -11,10 +11,10 @@ class OrbytisAtlasApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: AppConfig.appName,
       debugShowCheckedModeBanner: false,
-      home: const Scaffold(body: Center(child: Text('Orbytis Atlas'))),
+      home: Scaffold(body: Center(child: Text('Orbytis Atlas'))),
     );
   }
 }
