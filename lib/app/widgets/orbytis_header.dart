@@ -56,7 +56,6 @@ class OrbytisHeader extends StatelessWidget {
                 color: AppColors.violet.withValues(alpha: 0.15),
               ),
             ),
-
             // Conteúdo
             SafeArea(
               child: Padding(

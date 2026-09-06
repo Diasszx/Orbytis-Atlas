@@ -1,9 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../app/theme/app_colors.dart';
 import '../../../../app/widgets/orbytis_header.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_event.dart';
 
 final class WorkOrdersPage extends StatelessWidget {
   const WorkOrdersPage({super.key});
+
+  Future<void> _confirmLogout(BuildContext context) async {
+    final shouldLogout =
+        await showDialog<bool>(
+          context: context,
+          builder: (dialogContext) {
+            return AlertDialog(
+              title: const Text('Sair da conta?'),
+              content: const Text(
+                'Você precisará entrar novamente para acessar sua conta.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop(false);
+                  },
+                  child: const Text('Cancelar'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop(true);
+                  },
+                  child: const Text('Sair'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
+
+    if (!context.mounted || !shouldLogout) {
+      return;
+    }
+
+    context.read<AuthBloc>().add(const AuthLogoutRequested());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +55,16 @@ final class WorkOrdersPage extends StatelessWidget {
         child: Stack(
           children: [
             const OrbytisHeader(title: 'Ordens de serviço'),
+            Positioned(
+              top: 12,
+              right: 16,
+              child: IconButton(
+                tooltip: 'Sair',
+                onPressed: () => _confirmLogout(context),
+                color: AppColors.white,
+                icon: const Icon(Icons.logout),
+              ),
+            ),
             Positioned(
               top: 150,
               left: 16,
