@@ -5,6 +5,7 @@ import 'package:orbytis_atlas/core/network/dio_client.dart';
 import 'package:orbytis_atlas/core/storage/secure_storage_service.dart';
 import 'package:orbytis_atlas/features/auth/datasources/auth_remote_data_source.dart';
 import 'package:orbytis_atlas/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:orbytis_atlas/features/auth/presentation/bloc/auth_event.dart';
 import 'package:orbytis_atlas/features/auth/repositories/auth_repository.dart';
 
 void main() {
@@ -20,6 +21,7 @@ void main() {
   );
 
   final authBloc = AuthBloc(authRepository);
+  authBloc.add(const AuthSessionChecked());
 
   final appRouter = AppRouter(authBloc: authBloc);
 
