@@ -24,3 +24,7 @@ final class AuthLoginRequested extends AuthEvent {
 final class AuthLogoutRequested extends AuthEvent {
   const AuthLogoutRequested();
 }
+
+final class AuthSessionExpired extends AuthEvent {
+  const AuthSessionExpired();
+}

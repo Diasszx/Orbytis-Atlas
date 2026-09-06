@@ -1,17 +1,38 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:orbytis_atlas/core/auth/session_expired_notifier.dart';
 import 'package:orbytis_atlas/features/auth/errors/auth_exception.dart';
 import 'package:orbytis_atlas/features/auth/presentation/bloc/auth_event.dart';
 import 'package:orbytis_atlas/features/auth/presentation/bloc/auth_state.dart';
 import 'package:orbytis_atlas/features/auth/repositories/auth_repository.dart';
 
 final class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  AuthBloc(this._authRepository) : super(const AuthInitial()) {
+  AuthBloc(this._authRepository, this._sessionExpiredNotifier)
+    : super(const AuthInitial()) {
+    _sessionExpiredNotifier.addListener(_onSessionExpiredNotification);
+
     on<AuthSessionChecked>(_onSessionChecked);
     on<AuthLoginRequested>(_onLoginRequested);
     on<AuthLogoutRequested>(_onLogoutRequested);
+    on<AuthSessionExpired>(_onSessionExpired);
   }
 
+  final SessionExpiredNotifier _sessionExpiredNotifier;
   final AuthRepository _authRepository;
+
+  void _onSessionExpiredNotification() {
+    add(const AuthSessionExpired());
+  }
+
+  void _onSessionExpired(AuthSessionExpired event, Emitter<AuthState> emit) {
+    emit(const AuthUnauthenticated());
+  }
+
+  @override
+  Future<void> close() {
+    _sessionExpiredNotifier.removeListener(_onSessionExpiredNotification);
+
+    return super.close();
+  }
 
   Future<void> _onSessionChecked(
     AuthSessionChecked event,
