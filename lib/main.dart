@@ -53,6 +53,7 @@ Future<void> main() async {
 
   final workOrdersRepository = WorkOrdersRepository(
     remoteDataSource: workOrdersRemoteDataSource,
+    localDataSource: workOrdersLocalDataSource,
   );
 
   final workOrdersBloc = WorkOrdersBloc(workOrdersRepository);

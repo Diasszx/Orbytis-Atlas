@@ -8,6 +8,8 @@ final class WorkOrdersLocalDataSource {
 
   final Box<String> _box;
 
+  bool get hasCachedWorkOrders => _box.isNotEmpty;
+
   Future<void> saveWorkOrders(List<WorkOrder> workOrders) async {
     await _box.clear();
 
