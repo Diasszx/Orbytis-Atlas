@@ -45,8 +45,6 @@ Future<void> main() async {
   final authBloc = AuthBloc(authRepository, sessionExpiredNotifier);
   authBloc.add(const AuthSessionChecked());
 
-  final appRouter = AppRouter(authBloc: authBloc);
-
   final workOrdersRemoteDataSource = WorkOrdersRemoteDataSource(
     dioClient: dioClient,
   );
@@ -54,6 +52,11 @@ Future<void> main() async {
   final workOrdersRepository = WorkOrdersRepository(
     remoteDataSource: workOrdersRemoteDataSource,
     localDataSource: workOrdersLocalDataSource,
+  );
+
+  final appRouter = AppRouter(
+    authBloc: authBloc,
+    workOrdersRepository: workOrdersRepository,
   );
 
   final workOrdersBloc = WorkOrdersBloc(workOrdersRepository);

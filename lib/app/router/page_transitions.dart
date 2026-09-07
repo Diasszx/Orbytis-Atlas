@@ -7,8 +7,8 @@ CustomTransitionPage<void> slideTransitionPage({
 }) {
   return CustomTransitionPage<void>(
     key: state.pageKey,
-    transitionDuration: const Duration(milliseconds: 800),
-    reverseTransitionDuration: const Duration(milliseconds: 300),
+    transitionDuration: const Duration(milliseconds: 300),
+    reverseTransitionDuration: const Duration(milliseconds: 250),
     child: child,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       final offsetAnimation =

@@ -18,7 +18,7 @@ final class WorkOrderCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
-          context.push('/work-orders/${workOrder.id}', extra: workOrder);
+          context.push('/work-orders/${workOrder.id}');
         },
         child: Padding(
           padding: const EdgeInsets.all(16),
