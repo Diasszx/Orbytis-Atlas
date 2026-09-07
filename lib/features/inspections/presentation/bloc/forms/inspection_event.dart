@@ -36,3 +36,11 @@ final class InspectionPhotoRequested extends InspectionEvent {
 final class InspectionLocationRequested extends InspectionEvent {
   const InspectionLocationRequested();
 }
+
+final class InspectionAutosaveRequested extends InspectionEvent {
+  const InspectionAutosaveRequested();
+}
+
+final class InspectionSaveAndExitRequested extends InspectionEvent {
+  const InspectionSaveAndExitRequested();
+}

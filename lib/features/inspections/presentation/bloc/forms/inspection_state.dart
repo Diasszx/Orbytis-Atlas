@@ -8,6 +8,8 @@ sealed class InspectionState extends Equatable {
   List<Object?> get props => const [];
 }
 
+enum InspectionSaveStatus { saved, unsaved, saving, error }
+
 final class InspectionInitial extends InspectionState {
   const InspectionInitial();
 }
@@ -17,12 +19,18 @@ final class InspectionLoading extends InspectionState {
 }
 
 final class InspectionLoaded extends InspectionState {
-  const InspectionLoaded(this.inspection);
+  const InspectionLoaded(
+    this.inspection, {
+    this.saveStatus = InspectionSaveStatus.saved,
+    this.saveError,
+  });
 
   final Inspection inspection;
+  final InspectionSaveStatus saveStatus;
+  final String? saveError;
 
   @override
-  List<Object?> get props => [inspection];
+  List<Object?> get props => [inspection, saveStatus, saveError];
 }
 
 final class InspectionSaving extends InspectionState {
@@ -36,6 +44,15 @@ final class InspectionSaving extends InspectionState {
 
 final class InspectionGettingLocation extends InspectionState {
   const InspectionGettingLocation(this.inspection);
+
+  final Inspection inspection;
+
+  @override
+  List<Object?> get props => [inspection];
+}
+
+final class InspectionSaveAndExitSuccess extends InspectionState {
+  const InspectionSaveAndExitSuccess(this.inspection);
 
   final Inspection inspection;
 

@@ -34,6 +34,23 @@ final class InspectionsLocalDataSource {
         .toList(growable: false);
   }
 
+  Inspection? getDraftByWorkOrderId(String workOrderId) {
+    final drafts = getInspections()
+        .where(
+          (inspection) =>
+              inspection.workOrderId == workOrderId &&
+              inspection.syncStatus == InspectionSyncStatus.draft,
+        )
+        .toList();
+
+    if (drafts.isEmpty) {
+      return null;
+    }
+
+    drafts.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    return drafts.first;
+  }
+
   List<Inspection> getPendingInspections() {
     return getInspections()
         .where(

@@ -21,7 +21,7 @@ final class InspectionStartBloc
     emit(const InspectionStartLoading());
 
     try {
-      final inspection = await _inspectionsRepository.createDraft(
+      final inspection = await _inspectionsRepository.getOrCreateDraft(
         workOrderId: event.workOrderId,
       );
 
