@@ -5,17 +5,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:orbytis_atlas/features/inspections/models/inspection.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/forms/inspection_bloc.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/forms/inspection_event.dart';
+import 'package:orbytis_atlas/features/inspections/presentation/bloc/forms/inspection_state.dart';
 
 final class InspectionForm extends StatelessWidget {
   const InspectionForm({
     super.key,
     required this.inspection,
+    this.saveStatus = InspectionSaveStatus.saved,
     this.isSaving = false,
     this.isGettingLocation = false,
     this.errorMessage,
   });
 
   final Inspection inspection;
+  final InspectionSaveStatus saveStatus;
   final bool isSaving;
   final bool isGettingLocation;
   final String? errorMessage;
@@ -23,7 +26,8 @@ final class InspectionForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isBusy = isSaving || isGettingLocation;
+    final isPersisting = isSaving || saveStatus == InspectionSaveStatus.saving;
+    final isBusy = isPersisting || isGettingLocation;
 
     return ListView(
       padding: const EdgeInsets.all(24),
@@ -38,6 +42,11 @@ final class InspectionForm extends StatelessWidget {
         Text(
           'Registre as informações encontradas durante o atendimento.',
           style: theme.textTheme.bodyLarge,
+        ),
+        const SizedBox(height: 12),
+        Align(
+          alignment: Alignment.centerRight,
+          child: _SaveStatusIndicator(saveStatus: saveStatus),
         ),
         const SizedBox(height: 24),
         TextFormField(
@@ -73,13 +82,11 @@ final class InspectionForm extends StatelessWidget {
               height: 220,
               width: double.infinity,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  height: 160,
-                  alignment: Alignment.center,
-                  child: const Text('Não foi possível carregar a foto.'),
-                );
-              },
+              errorBuilder: (context, error, stackTrace) => Container(
+                height: 160,
+                alignment: Alignment.center,
+                child: const Text('Não foi possível carregar a foto.'),
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -87,11 +94,9 @@ final class InspectionForm extends StatelessWidget {
         OutlinedButton.icon(
           onPressed: isBusy
               ? null
-              : () {
-                  context.read<InspectionBloc>().add(
+              : () => context.read<InspectionBloc>().add(
                     const InspectionPhotoRequested(),
-                  );
-                },
+                  ),
           icon: const Icon(Icons.camera_alt_outlined),
           label: Text(
             inspection.photoPath == null
@@ -148,11 +153,9 @@ final class InspectionForm extends StatelessWidget {
         OutlinedButton.icon(
           onPressed: isBusy
               ? null
-              : () {
-                  context.read<InspectionBloc>().add(
+              : () => context.read<InspectionBloc>().add(
                     const InspectionLocationRequested(),
-                  );
-                },
+                  ),
           icon: isGettingLocation
               ? const SizedBox(
                   width: 20,
@@ -192,22 +195,70 @@ final class InspectionForm extends StatelessWidget {
           child: FilledButton.icon(
             onPressed: isBusy
                 ? null
-                : () {
-                    context.read<InspectionBloc>().add(
-                      const InspectionDraftSaved(),
-                    );
-                  },
-            icon: isSaving
+                : () => context.read<InspectionBloc>().add(
+                    const InspectionSaveAndExitRequested(),
+                  ),
+            icon: isPersisting
                 ? const SizedBox(
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.save_outlined),
-            label: Text(isSaving ? 'Salvando...' : 'Salvar rascunho'),
+            label: Text(isPersisting ? 'Salvando...' : 'Salvar e sair'),
           ),
         ),
       ],
+    );
+  }
+}
+
+final class _SaveStatusIndicator extends StatelessWidget {
+  const _SaveStatusIndicator({required this.saveStatus});
+
+  final InspectionSaveStatus saveStatus;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      child: switch (saveStatus) {
+        InspectionSaveStatus.unsaved => const Text(
+          'Alterações pendentes',
+          key: ValueKey('unsaved'),
+        ),
+        InspectionSaveStatus.saving => const Row(
+          key: ValueKey('saving'),
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 14,
+              height: 14,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            SizedBox(width: 8),
+            Text('Salvando...'),
+          ],
+        ),
+        InspectionSaveStatus.saved => const Row(
+          key: ValueKey('saved'),
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.check_circle_outline, size: 18),
+            SizedBox(width: 6),
+            Text('Salvo'),
+          ],
+        ),
+        InspectionSaveStatus.error => const Row(
+          key: ValueKey('error'),
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error_outline, size: 18),
+            SizedBox(width: 6),
+            Text('Erro ao salvar'),
+          ],
+        ),
+      },
     );
   }
 }
