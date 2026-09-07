@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:orbytis_atlas/features/inspections/errors/inspections_exception.dart';
 import 'package:orbytis_atlas/features/inspections/models/inspection.dart';
@@ -13,9 +15,12 @@ final class InspectionBloc extends Bloc<InspectionEvent, InspectionState> {
     on<InspectionDraftSaved>(_onInspectionDraftSaved);
     on<InspectionPhotoRequested>(_onInspectionPhotoRequested);
     on<InspectionLocationRequested>(_onInspectionLocationRequested);
+    on<InspectionAutosaveRequested>(_onInspectionAutosaveRequested);
+    on<InspectionSaveAndExitRequested>(_onInspectionSaveAndExitRequested);
   }
 
   final InspectionsRepository _inspectionsRepository;
+  Timer? _autosaveTimer;
 
   void _onInspectionRequested(
     InspectionRequested event,
@@ -51,36 +56,115 @@ final class InspectionBloc extends Bloc<InspectionEvent, InspectionState> {
       return;
     }
 
-    emit(InspectionLoaded(inspection.copyWith(observation: event.observation)));
+    final updatedInspection = inspection.copyWith(observation: event.observation);
+    emit(
+      InspectionLoaded(
+        updatedInspection,
+        saveStatus: InspectionSaveStatus.unsaved,
+      ),
+    );
+
+    _autosaveTimer?.cancel();
+    _autosaveTimer = Timer(const Duration(milliseconds: 700), () {
+      if (!isClosed) {
+        add(const InspectionAutosaveRequested());
+      }
+    });
+  }
+
+  Future<void> _onInspectionAutosaveRequested(
+    InspectionAutosaveRequested event,
+    Emitter<InspectionState> emit,
+  ) async {
+    final currentState = state;
+
+    if (currentState is! InspectionLoaded ||
+        currentState.saveStatus == InspectionSaveStatus.saved) {
+      return;
+    }
+
+    final inspection = currentState.inspection;
+    emit(
+      InspectionLoaded(
+        inspection,
+        saveStatus: InspectionSaveStatus.saving,
+      ),
+    );
+
+    try {
+      final savedInspection = await _inspectionsRepository.saveInspection(
+        inspection,
+      );
+      emit(
+        InspectionLoaded(
+          savedInspection,
+          saveStatus: InspectionSaveStatus.saved,
+        ),
+      );
+    } on InspectionsException catch (error) {
+      emit(
+        InspectionLoaded(
+          inspection,
+          saveStatus: InspectionSaveStatus.error,
+          saveError: error.message,
+        ),
+      );
+    } catch (_) {
+      emit(
+        InspectionLoaded(
+          inspection,
+          saveStatus: InspectionSaveStatus.error,
+          saveError: 'Não foi possível salvar as alterações.',
+        ),
+      );
+    }
   }
 
   Future<void> _onInspectionDraftSaved(
     InspectionDraftSaved event,
     Emitter<InspectionState> emit,
   ) async {
+    await _saveCurrentInspection(emit);
+  }
+
+  Future<void> _onInspectionSaveAndExitRequested(
+    InspectionSaveAndExitRequested event,
+    Emitter<InspectionState> emit,
+  ) async {
+    _autosaveTimer?.cancel();
+
     final inspection = _currentInspection;
 
     if (inspection == null) {
       return;
     }
 
-    emit(InspectionSaving(inspection));
+    emit(
+      InspectionLoaded(
+        inspection,
+        saveStatus: InspectionSaveStatus.saving,
+      ),
+    );
 
     try {
       final savedInspection = await _inspectionsRepository.saveInspection(
         inspection,
       );
-
-      emit(InspectionLoaded(savedInspection));
+      emit(InspectionSaveAndExitSuccess(savedInspection));
     } on InspectionsException catch (error) {
       emit(
-        InspectionSaveFailure(inspection: inspection, message: error.message),
+        InspectionLoaded(
+          inspection,
+          saveStatus: InspectionSaveStatus.error,
+          saveError: error.message,
+        ),
       );
     } catch (_) {
       emit(
-        InspectionSaveFailure(
-          inspection: inspection,
-          message: 'Não foi possível salvar o rascunho.',
+        InspectionLoaded(
+          inspection,
+          saveStatus: InspectionSaveStatus.error,
+          saveError: 'Não foi possível salvar as alterações.',
         ),
       );
     }
@@ -90,6 +174,7 @@ final class InspectionBloc extends Bloc<InspectionEvent, InspectionState> {
     InspectionPhotoRequested event,
     Emitter<InspectionState> emit,
   ) async {
+    _autosaveTimer?.cancel();
     final inspection = _currentInspection;
 
     if (inspection == null) {
@@ -101,11 +186,9 @@ final class InspectionBloc extends Bloc<InspectionEvent, InspectionState> {
         inspection,
       );
 
-      if (updatedInspection == null) {
-        return;
+      if (updatedInspection != null) {
+        emit(InspectionLoaded(updatedInspection));
       }
-
-      emit(InspectionLoaded(updatedInspection));
     } on InspectionsException catch (error) {
       emit(
         InspectionSaveFailure(inspection: inspection, message: error.message),
@@ -117,6 +200,7 @@ final class InspectionBloc extends Bloc<InspectionEvent, InspectionState> {
     InspectionLocationRequested event,
     Emitter<InspectionState> emit,
   ) async {
+    _autosaveTimer?.cancel();
     final inspection = _currentInspection;
 
     if (inspection == null) {
@@ -144,6 +228,35 @@ final class InspectionBloc extends Bloc<InspectionEvent, InspectionState> {
     }
   }
 
+  Future<void> _saveCurrentInspection(Emitter<InspectionState> emit) async {
+    _autosaveTimer?.cancel();
+    final inspection = _currentInspection;
+
+    if (inspection == null) {
+      return;
+    }
+
+    emit(InspectionSaving(inspection));
+
+    try {
+      final savedInspection = await _inspectionsRepository.saveInspection(
+        inspection,
+      );
+      emit(InspectionLoaded(savedInspection));
+    } on InspectionsException catch (error) {
+      emit(
+        InspectionSaveFailure(inspection: inspection, message: error.message),
+      );
+    } catch (_) {
+      emit(
+        InspectionSaveFailure(
+          inspection: inspection,
+          message: 'Não foi possível salvar o rascunho.',
+        ),
+      );
+    }
+  }
+
   Inspection? get _currentInspection {
     return switch (state) {
       InspectionLoaded(:final inspection) => inspection,
@@ -152,5 +265,11 @@ final class InspectionBloc extends Bloc<InspectionEvent, InspectionState> {
       InspectionSaveFailure(:final inspection) => inspection,
       _ => null,
     };
+  }
+
+  @override
+  Future<void> close() {
+    _autosaveTimer?.cancel();
+    return super.close();
   }
 }
