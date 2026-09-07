@@ -1,36 +1,96 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:orbytis_atlas/features/inspections/presentation/bloc/inspection_start_event.dart';
+import 'package:orbytis_atlas/features/inspections/presentation/bloc/inspection_start_state.dart';
 
 import '../../errors/inspections_exception.dart';
+import '../../models/inspection.dart';
 import '../../repositories/inspections_repository.dart';
-import 'inspection_start_event.dart';
-import 'inspection_start_state.dart';
 
-final class InspectionStartBloc
-    extends Bloc<InspectionStartEvent, InspectionStartState> {
-  InspectionStartBloc(this._inspectionsRepository)
-    : super(const InspectionStartInitial()) {
-    on<InspectionStartRequested>(_onInspectionStartRequested);
+final class InspectionBloc extends Bloc<InspectionEvent, InspectionState> {
+  InspectionBloc(this._inspectionsRepository)
+    : super(const InspectionInitial()) {
+    on<InspectionRequested>(_onInspectionRequested);
+    on<InspectionObservationChanged>(_onInspectionObservationChanged);
+    on<InspectionDraftSaved>(_onInspectionDraftSaved);
   }
 
   final InspectionsRepository _inspectionsRepository;
 
-  Future<void> _onInspectionStartRequested(
-    InspectionStartRequested event,
-    Emitter<InspectionStartState> emit,
-  ) async {
-    emit(const InspectionStartLoading());
+  void _onInspectionRequested(
+    InspectionRequested event,
+    Emitter<InspectionState> emit,
+  ) {
+    emit(const InspectionLoading());
 
     try {
-      final inspection = await _inspectionsRepository.createDraft(
-        workOrderId: event.workOrderId,
+      final inspection = _inspectionsRepository.getInspectionByClientId(
+        event.clientId,
       );
-      emit(InspectionStartSuccess(inspection.clientId));
+
+      if (inspection == null) {
+        emit(const InspectionFailure('Inspeção não encontrada.'));
+        return;
+      }
+
+      emit(InspectionLoaded(inspection));
     } on InspectionsException catch (error) {
-      emit(InspectionStartFailure(error.message));
+      emit(InspectionFailure(error.message));
+    } catch (_) {
+      emit(const InspectionFailure('Não foi possível carregar a inspeção.'));
+    }
+  }
+
+  void _onInspectionObservationChanged(
+    InspectionObservationChanged event,
+    Emitter<InspectionState> emit,
+  ) {
+    final inspection = _currentInspection;
+
+    if (inspection == null) {
+      return;
+    }
+
+    emit(InspectionLoaded(inspection.copyWith(observation: event.observation)));
+  }
+
+  Future<void> _onInspectionDraftSaved(
+    InspectionDraftSaved event,
+    Emitter<InspectionState> emit,
+  ) async {
+    final inspection = _currentInspection;
+
+    if (inspection == null) {
+      return;
+    }
+
+    emit(InspectionSaving(inspection));
+
+    try {
+      final savedInspection = await _inspectionsRepository.saveInspection(
+        inspection,
+      );
+
+      emit(InspectionLoaded(savedInspection));
+    } on InspectionsException catch (error) {
+      emit(
+        InspectionSaveFailure(inspection: inspection, message: error.message),
+      );
     } catch (_) {
       emit(
-        const InspectionStartFailure('Não foi possível iniciar a inspeção.'),
+        InspectionSaveFailure(
+          inspection: inspection,
+          message: 'Não foi possível salvar o rascunho.',
+        ),
       );
     }
+  }
+
+  Inspection? get _currentInspection {
+    return switch (state) {
+      InspectionLoaded(:final inspection) => inspection,
+      InspectionSaving(:final inspection) => inspection,
+      InspectionSaveFailure(:final inspection) => inspection,
+      _ => null,
+    };
   }
 }
