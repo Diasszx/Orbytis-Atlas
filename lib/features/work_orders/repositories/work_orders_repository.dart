@@ -1,18 +1,51 @@
 import 'package:orbytis_atlas/core/errors/network_exception.dart';
+import 'package:orbytis_atlas/features/work_orders/datasources/work_orders_local_data_source.dart';
 import 'package:orbytis_atlas/features/work_orders/datasources/work_orders_remote_data_source.dart';
 import 'package:orbytis_atlas/features/work_orders/errors/work_orders_exception.dart';
 import 'package:orbytis_atlas/features/work_orders/models/work_order.dart';
 
 final class WorkOrdersRepository {
-  WorkOrdersRepository({required WorkOrdersRemoteDataSource remoteDataSource})
-    : _remoteDataSource = remoteDataSource;
+  WorkOrdersRepository({
+    required WorkOrdersRemoteDataSource remoteDataSource,
+    required WorkOrdersLocalDataSource localDataSource,
+  }) : _remoteDataSource = remoteDataSource,
+       _localDataSource = localDataSource;
 
   final WorkOrdersRemoteDataSource _remoteDataSource;
+  final WorkOrdersLocalDataSource _localDataSource;
 
   Future<List<WorkOrder>> getWorkOrders({String? status}) async {
     try {
-      return await _remoteDataSource.getWorkOrders(status: status);
+      final workOrders = await _remoteDataSource.getWorkOrders(status: status);
+
+      if (status == null) {
+        await _localDataSource.saveWorkOrders(workOrders);
+      }
+
+      return workOrders;
     } on NetworkException catch (error) {
+      if (error.type == NetworkErrorType.unauthorized) {
+        throw _mapNetworkError(error);
+      }
+
+      if (_localDataSource.hasCachedWorkOrders) {
+        try {
+          final cachedWorkOrders = _localDataSource.getWorkOrders();
+
+          if (status == null) {
+            return cachedWorkOrders;
+          }
+
+          return cachedWorkOrders
+              .where((workOrder) => workOrder.status == status)
+              .toList();
+        } on FormatException {
+          throw const WorkOrdersException(
+            'Os dados locais das ordens de serviço são inválidos.',
+          );
+        }
+      }
+
       throw _mapNetworkError(error);
     } on FormatException {
       throw const WorkOrdersException(
