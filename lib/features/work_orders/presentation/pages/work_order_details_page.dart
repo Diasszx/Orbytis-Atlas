@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../app/widgets/orbytis_header.dart';
+import '../../../inspections/presentation/bloc/inspection_start_bloc.dart';
+import '../../../inspections/presentation/bloc/inspection_start_event.dart';
+import '../../../inspections/presentation/bloc/inspection_start_state.dart';
 import '../../models/work_order.dart';
 import '../bloc/work_order_details_bloc.dart';
 import '../bloc/work_order_details_state.dart';
@@ -14,24 +18,37 @@ final class WorkOrderDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: BlocBuilder<WorkOrderDetailsBloc, WorkOrderDetailsState>(
-          builder: (context, state) {
-            return switch (state) {
-              WorkOrderDetailsInitial() || WorkOrderDetailsLoading() =>
-                const Center(child: CircularProgressIndicator()),
-              WorkOrderDetailsLoaded(:final workOrder) =>
-                _WorkOrderDetailsContent(workOrder: workOrder),
-              WorkOrderDetailsFailure(:final message) => Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Text(message, textAlign: TextAlign.center),
+    return BlocListener<InspectionStartBloc, InspectionStartState>(
+      listener: (context, state) {
+        if (state case InspectionStartSuccess(:final clientId)) {
+          context.push('/inspections/$clientId');
+        }
+
+        if (state case InspectionStartFailure(:final message)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message)),
+          );
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          bottom: false,
+          child: BlocBuilder<WorkOrderDetailsBloc, WorkOrderDetailsState>(
+            builder: (context, state) {
+              return switch (state) {
+                WorkOrderDetailsInitial() || WorkOrderDetailsLoading() =>
+                  const Center(child: CircularProgressIndicator()),
+                WorkOrderDetailsLoaded(:final workOrder) =>
+                  _WorkOrderDetailsContent(workOrder: workOrder),
+                WorkOrderDetailsFailure(:final message) => Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Text(message, textAlign: TextAlign.center),
+                  ),
                 ),
-              ),
-            };
-          },
+              };
+            },
+          ),
         ),
       ),
     );
@@ -124,6 +141,37 @@ final class _WorkOrderDetailsContent extends StatelessWidget {
                       ),
                     ),
                   ],
+                  const SizedBox(height: 32),
+                  BlocBuilder<InspectionStartBloc, InspectionStartState>(
+                    builder: (context, state) {
+                      final isLoading = state is InspectionStartLoading;
+
+                      return SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed: isLoading
+                              ? null
+                              : () {
+                                  context.read<InspectionStartBloc>().add(
+                                    InspectionStartRequested(workOrder.id),
+                                  );
+                                },
+                          icon: isLoading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Icon(Icons.play_arrow),
+                          label: Text(
+                            isLoading ? 'Iniciando...' : 'Iniciar inspeção',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 32),
                 ],
               ),

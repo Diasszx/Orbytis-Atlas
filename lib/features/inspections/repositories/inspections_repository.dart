@@ -35,11 +35,13 @@ final class InspectionsRepository {
     }
   }
 
-  Future<void> saveInspection(Inspection inspection) async {
+  Future<Inspection> saveInspection(Inspection inspection) async {
     try {
-      await _localDataSource.saveInspection(
-        inspection.copyWith(updatedAt: DateTime.now()),
-      );
+      final updatedInspection = inspection.copyWith(updatedAt: DateTime.now());
+
+      await _localDataSource.saveInspection(updatedInspection);
+
+      return updatedInspection;
     } catch (_) {
       throw const InspectionsException('Não foi possível salvar a inspeção.');
     }

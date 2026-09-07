@@ -70,6 +70,7 @@ Future<void> main() async {
   final appRouter = AppRouter(
     authBloc: authBloc,
     workOrdersRepository: workOrdersRepository,
+    inspectionsRepository: inspectionsRepository,
   );
 
   final workOrdersBloc = WorkOrdersBloc(workOrdersRepository);
