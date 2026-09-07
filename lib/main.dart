@@ -10,6 +10,7 @@ import 'package:orbytis_atlas/features/auth/datasources/auth_remote_data_source.
 import 'package:orbytis_atlas/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:orbytis_atlas/features/auth/presentation/bloc/auth_event.dart';
 import 'package:orbytis_atlas/features/auth/repositories/auth_repository.dart';
+import 'package:orbytis_atlas/features/inspections/datasources/inspections_local_data_source.dart';
 import 'package:orbytis_atlas/features/work_orders/datasources/work_orders_local_data_source.dart';
 import 'package:orbytis_atlas/features/work_orders/datasources/work_orders_remote_data_source.dart';
 import 'package:orbytis_atlas/features/work_orders/presentation/bloc/work_orders_bloc.dart';
@@ -21,6 +22,12 @@ Future<void> main() async {
   await Hive.initFlutter();
 
   final workOrdersBox = await Hive.openBox<String>(HiveBoxes.workOrders);
+
+  final inspectionsBox = await Hive.openBox<String>(HiveBoxes.inspections);
+
+  final inspectionsLocalDataSource = InspectionsLocalDataSource(
+    box: inspectionsBox,
+  );
 
   final workOrdersLocalDataSource = WorkOrdersLocalDataSource(
     box: workOrdersBox,
