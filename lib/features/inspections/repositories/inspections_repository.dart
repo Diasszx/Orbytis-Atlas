@@ -43,6 +43,32 @@ final class InspectionsRepository {
     }
   }
 
+  Future<Inspection> getOrCreateDraft({required String workOrderId}) async {
+    try {
+      final existingDraft = _localDataSource.getDraftByWorkOrderId(
+        workOrderId,
+      );
+
+      if (existingDraft != null) {
+        return existingDraft;
+      }
+
+      final now = DateTime.now();
+      final inspection = Inspection(
+        clientId: _uuid.v4(),
+        workOrderId: workOrderId,
+        syncStatus: InspectionSyncStatus.draft,
+        createdAt: now,
+        updatedAt: now,
+      );
+
+      await _localDataSource.saveInspection(inspection);
+      return inspection;
+    } catch (_) {
+      throw const InspectionsException('Não foi possível iniciar a inspeção.');
+    }
+  }
+
   Future<Inspection> saveInspection(Inspection inspection) async {
     try {
       final updatedInspection = inspection.copyWith(updatedAt: DateTime.now());
