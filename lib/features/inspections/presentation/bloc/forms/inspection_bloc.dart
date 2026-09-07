@@ -17,6 +17,8 @@ final class InspectionBloc extends Bloc<InspectionEvent, InspectionState> {
     on<InspectionLocationRequested>(_onInspectionLocationRequested);
     on<InspectionAutosaveRequested>(_onInspectionAutosaveRequested);
     on<InspectionSaveAndExitRequested>(_onInspectionSaveAndExitRequested);
+    on<InspectionConditionChanged>(_onInspectionConditionChanged);
+    on<InspectionConclusionRequested>(_onInspectionConclusionRequested);
   }
 
   final InspectionsRepository _inspectionsRepository;
@@ -170,6 +172,81 @@ final class InspectionBloc extends Bloc<InspectionEvent, InspectionState> {
     }
   }
 
+  Future<void> _onInspectionConditionChanged(
+    InspectionConditionChanged event,
+    Emitter<InspectionState> emit,
+  ) async {
+    final inspection = _currentInspection;
+
+    if (inspection == null) {
+      return;
+    }
+
+    _autosaveTimer?.cancel();
+    final updatedInspection = inspection.copyWith(condition: event.condition);
+    emit(
+      InspectionLoaded(
+        updatedInspection,
+        saveStatus: InspectionSaveStatus.saving,
+      ),
+    );
+
+    try {
+      final savedInspection = await _inspectionsRepository.saveInspection(
+        updatedInspection,
+      );
+      emit(
+        InspectionLoaded(
+          savedInspection,
+          saveStatus: InspectionSaveStatus.saved,
+        ),
+      );
+    } on InspectionsException catch (error) {
+      emit(
+        InspectionLoaded(
+          updatedInspection,
+          saveStatus: InspectionSaveStatus.error,
+          saveError: error.message,
+        ),
+      );
+    }
+  }
+
+  Future<void> _onInspectionConclusionRequested(
+    InspectionConclusionRequested event,
+    Emitter<InspectionState> emit,
+  ) async {
+    _autosaveTimer?.cancel();
+    final inspection = _currentInspection;
+
+    if (inspection == null) {
+      return;
+    }
+
+    emit(InspectionConcluding(inspection));
+
+    try {
+      final completedInspection = await _inspectionsRepository.completeInspection(
+        inspection,
+      );
+      emit(InspectionConclusionSuccess(completedInspection));
+    } on InspectionsException catch (error) {
+      emit(
+        InspectionValidationFailure(
+          inspection: inspection,
+          message: error.message,
+        ),
+      );
+    } catch (_) {
+      emit(
+        InspectionValidationFailure(
+          inspection: inspection,
+          message: 'Não foi possível concluir a inspeção.',
+        ),
+      );
+    }
+  }
+
   Future<void> _onInspectionPhotoRequested(
     InspectionPhotoRequested event,
     Emitter<InspectionState> emit,
@@ -263,6 +340,8 @@ final class InspectionBloc extends Bloc<InspectionEvent, InspectionState> {
       InspectionSaving(:final inspection) => inspection,
       InspectionGettingLocation(:final inspection) => inspection,
       InspectionSaveFailure(:final inspection) => inspection,
+      InspectionConcluding(:final inspection) => inspection,
+      InspectionValidationFailure(:final inspection) => inspection,
       _ => null,
     };
   }

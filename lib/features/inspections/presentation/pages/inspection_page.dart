@@ -56,6 +56,17 @@ final class _InspectionPageState extends State<InspectionPage> {
                       if (state is InspectionSaveAndExitSuccess) {
                         _showSaveSuccess();
                       }
+
+                      if (state is InspectionConclusionSuccess) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Inspeção concluída e aguardando sincronização.',
+                            ),
+                          ),
+                        );
+                        context.pop();
+                      }
                     },
                     builder: (context, state) {
                       return switch (state) {
@@ -81,6 +92,13 @@ final class _InspectionPageState extends State<InspectionPage> {
                             inspection: inspection,
                             isGettingLocation: true,
                           ),
+                        InspectionConcluding(:final inspection) =>
+                          InspectionForm(
+                            inspection: inspection,
+                            isSaving: true,
+                            isConcluding: true,
+                            saveStatus: InspectionSaveStatus.saving,
+                          ),
                         InspectionSaveFailure(
                           :final inspection,
                           :final message,
@@ -91,6 +109,20 @@ final class _InspectionPageState extends State<InspectionPage> {
                             errorMessage: message,
                           ),
                         InspectionSaveAndExitSuccess(:final inspection) =>
+                          InspectionForm(
+                            inspection: inspection,
+                            saveStatus: InspectionSaveStatus.saved,
+                          ),
+                        InspectionValidationFailure(
+                          :final inspection,
+                          :final message,
+                        ) =>
+                          InspectionForm(
+                            inspection: inspection,
+                            saveStatus: InspectionSaveStatus.error,
+                            errorMessage: message,
+                          ),
+                        InspectionConclusionSuccess(:final inspection) =>
                           InspectionForm(
                             inspection: inspection,
                             saveStatus: InspectionSaveStatus.saved,
