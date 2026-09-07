@@ -13,6 +13,7 @@ final class InspectionForm extends StatelessWidget {
     required this.inspection,
     this.saveStatus = InspectionSaveStatus.saved,
     this.isSaving = false,
+    this.isConcluding = false,
     this.isGettingLocation = false,
     this.errorMessage,
   });
@@ -20,6 +21,7 @@ final class InspectionForm extends StatelessWidget {
   final Inspection inspection;
   final InspectionSaveStatus saveStatus;
   final bool isSaving;
+  final bool isConcluding;
   final bool isGettingLocation;
   final String? errorMessage;
 
@@ -65,6 +67,35 @@ final class InspectionForm extends StatelessWidget {
               InspectionObservationChanged(value),
             );
           },
+        ),
+        const SizedBox(height: 24),
+        Text(
+          'Condição',
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          initialValue: inspection.condition,
+          decoration: const InputDecoration(
+            hintText: 'Selecione a condição encontrada',
+          ),
+          items: const [
+            DropdownMenuItem(value: 'bom', child: Text('Bom')),
+            DropdownMenuItem(value: 'regular', child: Text('Regular')),
+            DropdownMenuItem(value: 'ruim', child: Text('Ruim')),
+            DropdownMenuItem(value: 'crítico', child: Text('Crítico')),
+          ],
+          onChanged: isBusy
+              ? null
+              : (value) {
+                  if (value != null) {
+                    context.read<InspectionBloc>().add(
+                      InspectionConditionChanged(value),
+                    );
+                  }
+                },
         ),
         const SizedBox(height: 24),
         Text(
@@ -192,7 +223,7 @@ final class InspectionForm extends StatelessWidget {
         const SizedBox(height: 24),
         SizedBox(
           width: double.infinity,
-          child: FilledButton.icon(
+          child: OutlinedButton.icon(
             onPressed: isBusy
                 ? null
                 : () => context.read<InspectionBloc>().add(
@@ -206,6 +237,21 @@ final class InspectionForm extends StatelessWidget {
                   )
                 : const Icon(Icons.save_outlined),
             label: Text(isPersisting ? 'Salvando...' : 'Salvar e sair'),
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton.icon(
+            onPressed: isBusy
+                ? null
+                : () => context.read<InspectionBloc>().add(
+                    const InspectionConclusionRequested(),
+                  ),
+            icon: const Icon(Icons.check_circle_outline),
+            label: Text(
+              isConcluding ? 'Concluindo...' : 'Concluir inspeção',
+            ),
           ),
         ),
       ],
