@@ -14,6 +14,18 @@ final class WorkOrdersRepository {
   final WorkOrdersRemoteDataSource _remoteDataSource;
   final WorkOrdersLocalDataSource _localDataSource;
 
+  Future<WorkOrder> getWorkOrderById(String id) async {
+    try {
+      return await _remoteDataSource.getWorkOrderById(id);
+    } on NetworkException catch (error) {
+      throw _mapNetworkError(error);
+    } on FormatException {
+      throw const WorkOrdersException(
+        'Os dados da ordem de serviço são inválidos.',
+      );
+    }
+  }
+
   Future<List<WorkOrder>> getWorkOrders({String? status}) async {
     try {
       final workOrders = await _remoteDataSource.getWorkOrders(status: status);

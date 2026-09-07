@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/widgets/orbytis_header.dart';
@@ -19,7 +20,7 @@ final class WorkOrdersPage extends StatefulWidget {
 
 final class _WorkOrdersPageState extends State<WorkOrdersPage> {
   static const double _headerHeight = 150;
-  static const double _panelOverlap = 50;
+  static const double _panelOverlap = 75;
 
   @override
   void initState() {

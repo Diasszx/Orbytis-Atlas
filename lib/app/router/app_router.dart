@@ -1,12 +1,23 @@
+import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:orbytis_atlas/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:orbytis_atlas/features/auth/presentation/bloc/auth_state.dart';
+import 'package:orbytis_atlas/features/work_orders/presentation/bloc/work_order_details_bloc.dart';
+import 'package:orbytis_atlas/features/work_orders/presentation/bloc/work_order_details_event.dart';
+import 'package:orbytis_atlas/features/work_orders/presentation/pages/work_order_details_page.dart';
 import 'package:orbytis_atlas/features/work_orders/presentation/pages/work_orders_page.dart';
+import 'package:orbytis_atlas/features/work_orders/repositories/work_orders_repository.dart';
 
 import '../../features/auth/presentation/pages/login_page.dart';
 
+import 'page_transitions.dart';
+
 final class AppRouter {
-  AppRouter({required AuthBloc authBloc})
+  AppRouter({
+    required AuthBloc authBloc,
+    required WorkOrdersRepository workOrdersRepository,
+  })
     : router = GoRouter(
         initialLocation: '/login',
         redirect: (context, state) {
@@ -34,6 +45,22 @@ final class AppRouter {
           GoRoute(
             path: '/work-orders',
             builder: (context, state) => const WorkOrdersPage(),
+          ),
+          GoRoute(
+            path: '/work-orders/:id',
+            pageBuilder: (context, state) {
+              final id = state.pathParameters['id']!;
+
+              return slideTransitionPage(
+                state: state,
+                child: BlocProvider(
+                  create: (_) =>
+                      WorkOrderDetailsBloc(workOrdersRepository)
+                        ..add(WorkOrderDetailsRequested(id)),
+                  child: const WorkOrderDetailsPage(),
+                ),
+              );
+            },
           ),
         ],
       );
