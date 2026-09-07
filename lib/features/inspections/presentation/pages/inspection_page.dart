@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:orbytis_atlas/features/inspections/presentation/bloc/inspection_start_bloc.dart';
+import 'package:orbytis_atlas/features/inspections/presentation/bloc/inspection_start_state.dart';
 
 import '../../../../app/widgets/orbytis_header.dart';
+import '../widgets/inspection_form.dart';
 
 final class InspectionPage extends StatelessWidget {
   static const double _headerHeight = 150;
   static const double _panelOverlap = 28;
 
-  const InspectionPage({required this.clientId, super.key});
-
-  final String clientId;
+  const InspectionPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,21 +32,34 @@ final class InspectionPage extends StatelessWidget {
                       top: Radius.circular(28),
                     ),
                   ),
-                  child: ListView(
-                    padding: const EdgeInsets.all(24),
-                    children: [
-                      Text(
-                        'Inspeção iniciada',
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
+                  child: BlocBuilder<InspectionBloc, InspectionState>(
+                    builder: (context, state) {
+                      return switch (state) {
+                        InspectionInitial() || InspectionLoading() =>
+                          const Center(child: CircularProgressIndicator()),
+                        InspectionLoaded(:final inspection) => InspectionForm(
+                          inspection: inspection,
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Preencha os dados da inspeção antes de concluir o atendimento.',
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                    ],
+                        InspectionSaving(:final inspection) => InspectionForm(
+                          inspection: inspection,
+                          isSaving: true,
+                        ),
+                        InspectionSaveFailure(
+                          :final inspection,
+                          :final message,
+                        ) =>
+                          InspectionForm(
+                            inspection: inspection,
+                            errorMessage: message,
+                          ),
+                        InspectionFailure(:final message) => Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Text(message, textAlign: TextAlign.center),
+                          ),
+                        ),
+                      };
+                    },
                   ),
                 ),
               ),
