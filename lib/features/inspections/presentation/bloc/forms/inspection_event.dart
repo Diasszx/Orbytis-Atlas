@@ -28,3 +28,7 @@ final class InspectionObservationChanged extends InspectionEvent {
 final class InspectionDraftSaved extends InspectionEvent {
   const InspectionDraftSaved();
 }
+
+final class InspectionPhotoRequested extends InspectionEvent {
+  const InspectionPhotoRequested();
+}

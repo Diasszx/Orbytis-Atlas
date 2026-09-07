@@ -11,6 +11,7 @@ final class InspectionBloc extends Bloc<InspectionEvent, InspectionState> {
     on<InspectionRequested>(_onInspectionRequested);
     on<InspectionObservationChanged>(_onInspectionObservationChanged);
     on<InspectionDraftSaved>(_onInspectionDraftSaved);
+    on<InspectionPhotoRequested>(_onInspectionPhotoRequested);
   }
 
   final InspectionsRepository _inspectionsRepository;
@@ -80,6 +81,33 @@ final class InspectionBloc extends Bloc<InspectionEvent, InspectionState> {
           inspection: inspection,
           message: 'Não foi possível salvar o rascunho.',
         ),
+      );
+    }
+  }
+
+  Future<void> _onInspectionPhotoRequested(
+    InspectionPhotoRequested event,
+    Emitter<InspectionState> emit,
+  ) async {
+    final inspection = _currentInspection;
+
+    if (inspection == null) {
+      return;
+    }
+
+    try {
+      final updatedInspection = await _inspectionsRepository.capturePhoto(
+        inspection,
+      );
+
+      if (updatedInspection == null) {
+        return;
+      }
+
+      emit(InspectionLoaded(updatedInspection));
+    } on InspectionsException catch (error) {
+      emit(
+        InspectionSaveFailure(inspection: inspection, message: error.message),
       );
     }
   }

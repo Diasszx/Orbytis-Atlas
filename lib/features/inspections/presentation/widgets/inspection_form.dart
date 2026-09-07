@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:orbytis_atlas/features/inspections/models/inspection.dart';
@@ -52,6 +54,48 @@ final class InspectionForm extends StatelessWidget {
             );
           },
         ),
+        const SizedBox(height: 24),
+        Text(
+          'Foto',
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 8),
+        if (inspection.photoPath != null) ...[
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Image.file(
+              File(inspection.photoPath!),
+              height: 220,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  height: 160,
+                  alignment: Alignment.center,
+                  child: const Text('Não foi possível carregar a foto.'),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        OutlinedButton.icon(
+          onPressed: isSaving
+              ? null
+              : () {
+                  context.read<InspectionBloc>().add(
+                    const InspectionPhotoRequested(),
+                  );
+                },
+          icon: const Icon(Icons.camera_alt_outlined),
+          label: Text(
+            inspection.photoPath == null
+                ? 'Adicionar foto'
+                : 'Tirar outra foto',
+          ),
+        ),
         if (errorMessage != null) ...[
           const SizedBox(height: 16),
           Row(
@@ -95,3 +139,4 @@ final class InspectionForm extends StatelessWidget {
     );
   }
 }
+import 'dart:io';
