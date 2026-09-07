@@ -1,30 +1,17 @@
 import 'package:equatable/equatable.dart';
 
-sealed class InspectionEvent extends Equatable {
-  const InspectionEvent();
+sealed class InspectionStartEvent extends Equatable {
+  const InspectionStartEvent();
 
   @override
   List<Object?> get props => const [];
 }
 
-final class InspectionRequested extends InspectionEvent {
-  const InspectionRequested(this.clientId);
+final class InspectionStartRequested extends InspectionStartEvent {
+  const InspectionStartRequested(this.workOrderId);
 
-  final String clientId;
-
-  @override
-  List<Object?> get props => [clientId];
-}
-
-final class InspectionObservationChanged extends InspectionEvent {
-  const InspectionObservationChanged(this.observation);
-
-  final String observation;
+  final String workOrderId;
 
   @override
-  List<Object?> get props => [observation];
-}
-
-final class InspectionDraftSaved extends InspectionEvent {
-  const InspectionDraftSaved();
+  List<Object?> get props => [workOrderId];
 }

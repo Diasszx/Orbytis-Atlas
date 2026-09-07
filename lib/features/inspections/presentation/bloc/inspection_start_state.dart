@@ -1,55 +1,31 @@
 import 'package:equatable/equatable.dart';
 
-import '../../models/inspection.dart';
-
-sealed class InspectionState extends Equatable {
-  const InspectionState();
+sealed class InspectionStartState extends Equatable {
+  const InspectionStartState();
 
   @override
   List<Object?> get props => const [];
 }
 
-final class InspectionInitial extends InspectionState {
-  const InspectionInitial();
+final class InspectionStartInitial extends InspectionStartState {
+  const InspectionStartInitial();
 }
 
-final class InspectionLoading extends InspectionState {
-  const InspectionLoading();
+final class InspectionStartLoading extends InspectionStartState {
+  const InspectionStartLoading();
 }
 
-final class InspectionLoaded extends InspectionState {
-  const InspectionLoaded(this.inspection);
+final class InspectionStartSuccess extends InspectionStartState {
+  const InspectionStartSuccess(this.clientId);
 
-  final Inspection inspection;
+  final String clientId;
 
   @override
-  List<Object?> get props => [inspection];
+  List<Object?> get props => [clientId];
 }
 
-final class InspectionSaving extends InspectionState {
-  const InspectionSaving(this.inspection);
-
-  final Inspection inspection;
-
-  @override
-  List<Object?> get props => [inspection];
-}
-
-final class InspectionSaveFailure extends InspectionState {
-  const InspectionSaveFailure({
-    required this.inspection,
-    required this.message,
-  });
-
-  final Inspection inspection;
-  final String message;
-
-  @override
-  List<Object?> get props => [inspection, message];
-}
-
-final class InspectionFailure extends InspectionState {
-  const InspectionFailure(this.message);
+final class InspectionStartFailure extends InspectionStartState {
+  const InspectionStartFailure(this.message);
 
   final String message;
 
