@@ -4,15 +4,19 @@ import '../datasources/inspections_local_data_source.dart';
 import '../errors/inspections_exception.dart';
 import '../models/inspection.dart';
 import '../models/inspection_sync_status.dart';
+import '../services/inspection_photo_service.dart';
 
 final class InspectionsRepository {
   InspectionsRepository({
     required InspectionsLocalDataSource localDataSource,
+    required InspectionPhotoService photoService,
     Uuid? uuid,
   }) : _localDataSource = localDataSource,
+       _photoService = photoService,
        _uuid = uuid ?? const Uuid();
 
   final InspectionsLocalDataSource _localDataSource;
+  final InspectionPhotoService _photoService;
   final Uuid _uuid;
 
   Future<Inspection> createDraft({required String workOrderId}) async {
@@ -44,6 +48,28 @@ final class InspectionsRepository {
       return updatedInspection;
     } catch (_) {
       throw const InspectionsException('Não foi possível salvar a inspeção.');
+    }
+  }
+
+  Future<Inspection?> capturePhoto(Inspection inspection) async {
+    try {
+      final photoPath = await _photoService.capturePhoto(
+        clientId: inspection.clientId,
+      );
+
+      if (photoPath == null) {
+        return null;
+      }
+
+      final updatedInspection = inspection.copyWith(
+        photoPath: photoPath,
+        updatedAt: DateTime.now(),
+      );
+
+      await _localDataSource.saveInspection(updatedInspection);
+      return updatedInspection;
+    } catch (_) {
+      throw const InspectionsException('Não foi possível registrar a foto.');
     }
   }
 

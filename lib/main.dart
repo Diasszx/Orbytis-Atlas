@@ -13,6 +13,7 @@ import 'package:orbytis_atlas/features/auth/repositories/auth_repository.dart';
 import 'package:orbytis_atlas/features/inspections/datasources/inspections_local_data_source.dart';
 
 import 'package:orbytis_atlas/features/inspections/repositories/inspections_repository.dart';
+import 'package:orbytis_atlas/features/inspections/services/inspection_photo_service.dart';
 import 'package:orbytis_atlas/features/work_orders/datasources/work_orders_local_data_source.dart';
 import 'package:orbytis_atlas/features/work_orders/datasources/work_orders_remote_data_source.dart';
 import 'package:orbytis_atlas/features/work_orders/presentation/bloc/work_orders_bloc.dart';
@@ -31,8 +32,11 @@ Future<void> main() async {
     box: inspectionsBox,
   );
 
+  final inspectionPhotoService = InspectionPhotoService();
+
   final inspectionsRepository = InspectionsRepository(
     localDataSource: inspectionsLocalDataSource,
+    photoService: inspectionPhotoService,
   );
 
   final workOrdersLocalDataSource = WorkOrdersLocalDataSource(
