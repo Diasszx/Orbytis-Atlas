@@ -8,6 +8,9 @@ import 'package:orbytis_atlas/features/auth/datasources/auth_remote_data_source.
 import 'package:orbytis_atlas/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:orbytis_atlas/features/auth/presentation/bloc/auth_event.dart';
 import 'package:orbytis_atlas/features/auth/repositories/auth_repository.dart';
+import 'package:orbytis_atlas/features/work_orders/datasources/work_orders_remote_data_source.dart';
+import 'package:orbytis_atlas/features/work_orders/presentation/bloc/work_orders_bloc.dart';
+import 'package:orbytis_atlas/features/work_orders/repositories/work_orders_repository.dart';
 
 void main() {
   final secureStorageService = SecureStorageService();
@@ -31,5 +34,21 @@ void main() {
 
   final appRouter = AppRouter(authBloc: authBloc);
 
-  runApp(OrbytisAtlasApp(authBloc: authBloc, router: appRouter.router));
+  final workOrdersRemoteDataSource = WorkOrdersRemoteDataSource(
+    dioClient: dioClient,
+  );
+
+  final workOrdersRepository = WorkOrdersRepository(
+    remoteDataSource: workOrdersRemoteDataSource,
+  );
+
+  final workOrdersBloc = WorkOrdersBloc(workOrdersRepository);
+
+  runApp(
+    OrbytisAtlasApp(
+      authBloc: authBloc,
+      router: appRouter.router,
+      workOrdersBloc: workOrdersBloc,
+    ),
+  );
 }
