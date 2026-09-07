@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:orbytis_atlas/features/inspections/presentation/bloc/inspection_start_bloc.dart';
-import 'package:orbytis_atlas/features/inspections/presentation/bloc/inspection_start_state.dart';
+import 'package:orbytis_atlas/features/inspections/presentation/bloc/forms/inspection_bloc.dart';
+import 'package:orbytis_atlas/features/inspections/presentation/bloc/forms/inspection_state.dart';
 
 import '../../../../app/widgets/orbytis_header.dart';
 import '../widgets/inspection_form.dart';
