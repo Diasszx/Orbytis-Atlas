@@ -34,6 +34,15 @@ final class InspectionSaving extends InspectionState {
   List<Object?> get props => [inspection];
 }
 
+final class InspectionGettingLocation extends InspectionState {
+  const InspectionGettingLocation(this.inspection);
+
+  final Inspection inspection;
+
+  @override
+  List<Object?> get props => [inspection];
+}
+
 final class InspectionSaveFailure extends InspectionState {
   const InspectionSaveFailure({
     required this.inspection,
