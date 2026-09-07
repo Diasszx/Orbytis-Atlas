@@ -11,16 +11,19 @@ final class InspectionForm extends StatelessWidget {
     super.key,
     required this.inspection,
     this.isSaving = false,
+    this.isGettingLocation = false,
     this.errorMessage,
   });
 
   final Inspection inspection;
   final bool isSaving;
+  final bool isGettingLocation;
   final String? errorMessage;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isBusy = isSaving || isGettingLocation;
 
     return ListView(
       padding: const EdgeInsets.all(24),
@@ -39,7 +42,7 @@ final class InspectionForm extends StatelessWidget {
         const SizedBox(height: 24),
         TextFormField(
           initialValue: inspection.observation,
-          enabled: !isSaving,
+          enabled: !isBusy,
           minLines: 4,
           maxLines: 7,
           textCapitalization: TextCapitalization.sentences,
@@ -82,7 +85,7 @@ final class InspectionForm extends StatelessWidget {
           const SizedBox(height: 12),
         ],
         OutlinedButton.icon(
-          onPressed: isSaving
+          onPressed: isBusy
               ? null
               : () {
                   context.read<InspectionBloc>().add(
@@ -94,6 +97,75 @@ final class InspectionForm extends StatelessWidget {
             inspection.photoPath == null
                 ? 'Adicionar foto'
                 : 'Tirar outra foto',
+          ),
+        ),
+        const SizedBox(height: 24),
+        Text(
+          'Localização',
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 8),
+        if (inspection.latitude != null && inspection.longitude != null) ...[
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.location_on,
+                  color: theme.colorScheme.onPrimaryContainer,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Localização registrada',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Latitude: ${inspection.latitude!.toStringAsFixed(6)}\n'
+                        'Longitude: ${inspection.longitude!.toStringAsFixed(6)}',
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        OutlinedButton.icon(
+          onPressed: isBusy
+              ? null
+              : () {
+                  context.read<InspectionBloc>().add(
+                    const InspectionLocationRequested(),
+                  );
+                },
+          icon: isGettingLocation
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.my_location),
+          label: Text(
+            isGettingLocation
+                ? 'Obtendo localização...'
+                : inspection.latitude == null
+                ? 'Registrar localização'
+                : 'Atualizar localização',
           ),
         ),
         if (errorMessage != null) ...[
@@ -118,7 +190,7 @@ final class InspectionForm extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           child: FilledButton.icon(
-            onPressed: isSaving
+            onPressed: isBusy
                 ? null
                 : () {
                     context.read<InspectionBloc>().add(
@@ -139,4 +211,3 @@ final class InspectionForm extends StatelessWidget {
     );
   }
 }
-import 'dart:io';

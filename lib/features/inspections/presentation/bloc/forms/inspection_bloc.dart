@@ -12,6 +12,7 @@ final class InspectionBloc extends Bloc<InspectionEvent, InspectionState> {
     on<InspectionObservationChanged>(_onInspectionObservationChanged);
     on<InspectionDraftSaved>(_onInspectionDraftSaved);
     on<InspectionPhotoRequested>(_onInspectionPhotoRequested);
+    on<InspectionLocationRequested>(_onInspectionLocationRequested);
   }
 
   final InspectionsRepository _inspectionsRepository;
@@ -112,10 +113,42 @@ final class InspectionBloc extends Bloc<InspectionEvent, InspectionState> {
     }
   }
 
+  Future<void> _onInspectionLocationRequested(
+    InspectionLocationRequested event,
+    Emitter<InspectionState> emit,
+  ) async {
+    final inspection = _currentInspection;
+
+    if (inspection == null) {
+      return;
+    }
+
+    emit(InspectionGettingLocation(inspection));
+
+    try {
+      final updatedInspection = await _inspectionsRepository.registerLocation(
+        inspection,
+      );
+      emit(InspectionLoaded(updatedInspection));
+    } on InspectionsException catch (error) {
+      emit(
+        InspectionSaveFailure(inspection: inspection, message: error.message),
+      );
+    } catch (_) {
+      emit(
+        InspectionSaveFailure(
+          inspection: inspection,
+          message: 'Não foi possível registrar a localização.',
+        ),
+      );
+    }
+  }
+
   Inspection? get _currentInspection {
     return switch (state) {
       InspectionLoaded(:final inspection) => inspection,
       InspectionSaving(:final inspection) => inspection,
+      InspectionGettingLocation(:final inspection) => inspection,
       InspectionSaveFailure(:final inspection) => inspection,
       _ => null,
     };

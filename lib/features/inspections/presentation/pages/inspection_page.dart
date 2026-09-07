@@ -44,6 +44,11 @@ final class InspectionPage extends StatelessWidget {
                           inspection: inspection,
                           isSaving: true,
                         ),
+                        InspectionGettingLocation(:final inspection) =>
+                          InspectionForm(
+                            inspection: inspection,
+                            isGettingLocation: true,
+                          ),
                         InspectionSaveFailure(
                           :final inspection,
                           :final message,
