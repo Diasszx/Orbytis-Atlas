@@ -4,14 +4,21 @@ import '../theme/app_colors.dart';
 import '../theme/app_gradients.dart';
 
 class OrbytisHeader extends StatelessWidget {
-  final String title;
+  static const double defaultHeight = 220;
 
-  const OrbytisHeader({super.key, required this.title});
+  final String title;
+  final double height;
+
+  const OrbytisHeader({
+    super.key,
+    required this.title,
+    this.height = defaultHeight,
+  });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 220,
+      height: height,
       width: double.infinity,
       child: ClipRRect(
         borderRadius: const BorderRadius.only(
