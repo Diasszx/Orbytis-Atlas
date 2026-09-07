@@ -123,6 +123,43 @@ final class InspectionsRepository {
     }
   }
 
+  Future<Inspection> completeInspection(Inspection inspection) async {
+    final observation = inspection.observation?.trim();
+
+    if (observation == null || observation.length < 10) {
+      throw const InspectionsException(
+        'A observação deve ter pelo menos 10 caracteres.',
+      );
+    }
+
+    if (inspection.photoPath == null) {
+      throw const InspectionsException(
+        'Adicione uma foto antes de concluir a inspeção.',
+      );
+    }
+
+    if (inspection.latitude == null || inspection.longitude == null) {
+      throw const InspectionsException(
+        'Registre a localização antes de concluir a inspeção.',
+      );
+    }
+
+    final now = DateTime.now();
+    final completedInspection = inspection.copyWith(
+      observation: observation,
+      syncStatus: InspectionSyncStatus.pending,
+      capturedAt: inspection.capturedAt ?? now,
+      updatedAt: now,
+    );
+
+    try {
+      await _localDataSource.saveInspection(completedInspection);
+      return completedInspection;
+    } catch (_) {
+      throw const InspectionsException('Não foi possível concluir a inspeção.');
+    }
+  }
+
   Inspection? getInspectionByClientId(String clientId) {
     try {
       return _localDataSource.getInspectionByClientId(clientId);

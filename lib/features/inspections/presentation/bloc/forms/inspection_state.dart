@@ -60,6 +60,37 @@ final class InspectionSaveAndExitSuccess extends InspectionState {
   List<Object?> get props => [inspection];
 }
 
+final class InspectionConcluding extends InspectionState {
+  const InspectionConcluding(this.inspection);
+
+  final Inspection inspection;
+
+  @override
+  List<Object?> get props => [inspection];
+}
+
+final class InspectionValidationFailure extends InspectionState {
+  const InspectionValidationFailure({
+    required this.inspection,
+    required this.message,
+  });
+
+  final Inspection inspection;
+  final String message;
+
+  @override
+  List<Object?> get props => [inspection, message];
+}
+
+final class InspectionConclusionSuccess extends InspectionState {
+  const InspectionConclusionSuccess(this.inspection);
+
+  final Inspection inspection;
+
+  @override
+  List<Object?> get props => [inspection];
+}
+
 final class InspectionSaveFailure extends InspectionState {
   const InspectionSaveFailure({
     required this.inspection,

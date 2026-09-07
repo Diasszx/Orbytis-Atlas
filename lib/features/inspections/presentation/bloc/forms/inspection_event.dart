@@ -44,3 +44,16 @@ final class InspectionAutosaveRequested extends InspectionEvent {
 final class InspectionSaveAndExitRequested extends InspectionEvent {
   const InspectionSaveAndExitRequested();
 }
+
+final class InspectionConditionChanged extends InspectionEvent {
+  const InspectionConditionChanged(this.condition);
+
+  final String condition;
+
+  @override
+  List<Object?> get props => [condition];
+}
+
+final class InspectionConclusionRequested extends InspectionEvent {
+  const InspectionConclusionRequested();
+}
