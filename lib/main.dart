@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 import 'package:orbytis_atlas/app/app.dart';
 import 'package:orbytis_atlas/app/router/app_router.dart';
+import 'package:orbytis_atlas/app/startup_app.dart';
 import 'package:orbytis_atlas/core/auth/session_expired_notifier.dart';
 import 'package:orbytis_atlas/core/network/dio_client.dart';
 import 'package:orbytis_atlas/core/storage/hive_boxes.dart';
@@ -16,8 +17,8 @@ import 'package:orbytis_atlas/features/inspections/datasources/inspections_local
 import 'package:orbytis_atlas/features/inspections/datasources/inspections_remote_data_source.dart';
 
 import 'package:orbytis_atlas/features/inspections/repositories/inspections_repository.dart';
-import 'package:orbytis_atlas/features/inspections/services/inspection_photo_service.dart';
 import 'package:orbytis_atlas/features/inspections/services/inspection_location_service.dart';
+import 'package:orbytis_atlas/features/inspections/services/inspection_photo_service.dart';
 import 'package:orbytis_atlas/features/inspections/services/inspection_sync_coordinator.dart';
 import 'package:orbytis_atlas/features/work_orders/datasources/work_orders_local_data_source.dart';
 import 'package:orbytis_atlas/features/work_orders/datasources/work_orders_remote_data_source.dart';
@@ -26,7 +27,10 @@ import 'package:orbytis_atlas/features/work_orders/repositories/work_orders_repo
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  runApp(StartupApp(initialize: _initializeApp));
+}
 
+Future<Widget> _initializeApp() async {
   await Hive.initFlutter();
 
   final workOrdersBox = await Hive.openBox<String>(HiveBoxes.workOrders);
@@ -95,13 +99,10 @@ Future<void> main() async {
 
   final workOrdersBloc = WorkOrdersBloc(workOrdersRepository);
 
-  runApp(
-    OrbytisAtlasApp(
-      authBloc: authBloc,
-      router: appRouter.router,
-      workOrdersBloc: workOrdersBloc,
-    ),
-  );
-
   unawaited(inspectionSyncCoordinator.start());
+  return OrbytisAtlasApp(
+    authBloc: authBloc,
+    router: appRouter.router,
+    workOrdersBloc: workOrdersBloc,
+  );
 }
