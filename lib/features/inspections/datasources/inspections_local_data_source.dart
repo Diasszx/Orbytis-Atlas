@@ -55,8 +55,15 @@ final class InspectionsLocalDataSource {
     return getInspections()
         .where(
           (inspection) =>
-              inspection.syncStatus == InspectionSyncStatus.pending ||
-              inspection.syncStatus == InspectionSyncStatus.failed,
+              inspection.syncStatus == InspectionSyncStatus.pending,
+        )
+        .toList(growable: false);
+  }
+
+  List<Inspection> getFailedInspections() {
+    return getInspections()
+        .where(
+          (inspection) => inspection.syncStatus == InspectionSyncStatus.failed,
         )
         .toList(growable: false);
   }

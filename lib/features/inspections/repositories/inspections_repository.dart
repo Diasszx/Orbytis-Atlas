@@ -50,9 +50,7 @@ final class InspectionsRepository {
 
   Future<Inspection> getOrCreateDraft({required String workOrderId}) async {
     try {
-      final existingDraft = _localDataSource.getDraftByWorkOrderId(
-        workOrderId,
-      );
+      final existingDraft = _localDataSource.getDraftByWorkOrderId(workOrderId);
 
       if (existingDraft != null) {
         return existingDraft;
@@ -173,7 +171,9 @@ final class InspectionsRepository {
     }
 
     if (inspection.syncStatus == InspectionSyncStatus.draft) {
-      throw const InspectionsException('Rascunhos não podem ser sincronizados.');
+      throw const InspectionsException(
+        'Rascunhos não podem ser sincronizados.',
+      );
     }
 
     if (inspection.syncStatus == InspectionSyncStatus.synced) {
@@ -252,7 +252,8 @@ final class InspectionsRepository {
       NetworkErrorType.timeout => 'A sincronização excedeu o tempo limite.',
       NetworkErrorType.connection =>
         'Sem conexão. A inspeção continuará aguardando sincronização.',
-      NetworkErrorType.badResponse => 'O servidor recusou os dados da inspeção.',
+      NetworkErrorType.badResponse =>
+        'O servidor recusou os dados da inspeção.',
       NetworkErrorType.cancelled => 'A sincronização foi cancelada.',
       NetworkErrorType.badCertificate =>
         'Não foi possível estabelecer uma conexão segura.',

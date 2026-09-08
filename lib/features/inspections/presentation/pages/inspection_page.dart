@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:orbytis_atlas/features/inspections/models/inspection.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/forms/inspection_bloc.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/forms/inspection_state.dart';
+import 'package:orbytis_atlas/features/inspections/presentation/bloc/sync/inspection_sync_bloc.dart';
+import 'package:orbytis_atlas/features/inspections/presentation/bloc/sync/inspection_sync_event.dart';
+import 'package:orbytis_atlas/features/inspections/presentation/bloc/sync/inspection_sync_state.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/widgets/orbytis_header.dart';
@@ -57,16 +61,14 @@ final class _InspectionPageState extends State<InspectionPage> {
                         _showSaveSuccess();
                       }
 
-                      if (state is InspectionConclusionSuccess) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Inspeção concluída e aguardando sincronização.',
-                            ),
-                          ),
+                      if (state case InspectionConclusionSuccess(
+                        :final inspection,
+                      )) {
+                        context.read<InspectionSyncBloc>().add(
+                          InspectionSyncRequested(inspection.clientId),
                         );
-                        context.pop();
                       }
+
                     },
                     builder: (context, state) {
                       return switch (state) {
@@ -123,10 +125,7 @@ final class _InspectionPageState extends State<InspectionPage> {
                             errorMessage: message,
                           ),
                         InspectionConclusionSuccess(:final inspection) =>
-                          InspectionForm(
-                            inspection: inspection,
-                            saveStatus: InspectionSaveStatus.saved,
-                          ),
+                          _InspectionCompletedView(inspection: inspection),
                         InspectionFailure(:final message) => Center(
                           child: Padding(
                             padding: const EdgeInsets.all(24),
@@ -144,6 +143,120 @@ final class _InspectionPageState extends State<InspectionPage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+final class _InspectionCompletedView extends StatelessWidget {
+  const _InspectionCompletedView({required this.inspection});
+
+  final Inspection inspection;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.check_circle_outline,
+            size: 72,
+            color: theme.colorScheme.primary,
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'Inspeção concluída',
+            textAlign: TextAlign.center,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 16),
+          BlocBuilder<InspectionSyncBloc, InspectionSyncState>(
+            builder: (context, state) {
+              return switch (state) {
+                InspectionSyncLoading() => const _SyncStatus(
+                  icon: Icons.sync,
+                  title: 'Sincronizando...',
+                  message: 'Enviando a inspeção para o servidor.',
+                  isLoading: true,
+                ),
+                InspectionSyncSuccess() => const _SyncStatus(
+                  icon: Icons.cloud_done_outlined,
+                  title: 'Sincronizado',
+                  message: 'A inspeção foi enviada com sucesso.',
+                ),
+                InspectionSyncPending(:final message) => _SyncStatus(
+                  icon: Icons.cloud_queue_outlined,
+                  title: 'Aguardando conexão',
+                  message: '$message\n\nA inspeção está salva neste dispositivo '
+                      'e será sincronizada automaticamente.',
+                ),
+                InspectionSyncFailure(:final message) => _SyncStatus(
+                  icon: Icons.error_outline,
+                  title: 'Sincronização pendente de atenção',
+                  message: message,
+                ),
+                InspectionSyncInitial() => const _SyncStatus(
+                  icon: Icons.cloud_queue_outlined,
+                  title: 'Aguardando sincronização',
+                  message: 'A inspeção foi salva neste dispositivo.',
+                ),
+              };
+            },
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: context.pop,
+            child: const Text('Continuar trabalhando'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+final class _SyncStatus extends StatelessWidget {
+  const _SyncStatus({
+    required this.icon,
+    required this.title,
+    required this.message,
+    this.isLoading = false,
+  });
+
+  final IconData icon;
+  final String title;
+  final String message;
+  final bool isLoading;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Column(
+      children: [
+        if (isLoading)
+          const SizedBox(
+            width: 32,
+            height: 32,
+            child: CircularProgressIndicator(strokeWidth: 3),
+          )
+        else
+          Icon(icon, size: 32, color: theme.colorScheme.primary),
+        const SizedBox(height: 12),
+        Text(
+          title,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(message, textAlign: TextAlign.center, style: theme.textTheme.bodyLarge),
+      ],
     );
   }
 }
