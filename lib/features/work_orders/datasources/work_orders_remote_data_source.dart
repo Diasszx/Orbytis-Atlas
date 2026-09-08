@@ -3,12 +3,20 @@ import 'package:orbytis_atlas/core/network/dio_client.dart';
 import 'package:orbytis_atlas/core/network/dio_exception_mapper.dart';
 import 'package:orbytis_atlas/features/work_orders/models/work_order.dart';
 
-final class WorkOrdersRemoteDataSource {
-  WorkOrdersRemoteDataSource({required DioClient dioClient})
+abstract interface class WorkOrdersRemoteDataSource {
+  Future<WorkOrder> getWorkOrderById(String id);
+
+  Future<List<WorkOrder>> getWorkOrders({String? status});
+}
+
+final class WorkOrdersRemoteDataSourceImpl
+    implements WorkOrdersRemoteDataSource {
+  WorkOrdersRemoteDataSourceImpl({required DioClient dioClient})
     : _dio = dioClient.dio;
 
   final Dio _dio;
 
+  @override
   Future<WorkOrder> getWorkOrderById(String id) async {
     try {
       final response = await _dio.get<Map<String, dynamic>>('/work-orders/$id');
@@ -25,6 +33,7 @@ final class WorkOrdersRemoteDataSource {
     }
   }
 
+  @override
   Future<List<WorkOrder>> getWorkOrders({String? status}) async {
     try {
       final response = await _dio.get<List<dynamic>>(

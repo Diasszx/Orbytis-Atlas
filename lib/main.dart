@@ -33,14 +33,14 @@ Future<void> main() async {
 
   final inspectionsBox = await Hive.openBox<String>(HiveBoxes.inspections);
 
-  final inspectionsLocalDataSource = InspectionsLocalDataSource(
+  final inspectionsLocalDataSource = InspectionsLocalDataSourceImpl(
     box: inspectionsBox,
   );
 
-  final inspectionPhotoService = InspectionPhotoService();
-  const inspectionLocationService = InspectionLocationService();
+  final inspectionPhotoService = InspectionPhotoServiceImpl();
+  const inspectionLocationService = InspectionLocationServiceImpl();
 
-  final workOrdersLocalDataSource = WorkOrdersLocalDataSource(
+  final workOrdersLocalDataSource = WorkOrdersLocalDataSourceImpl(
     box: workOrdersBox,
   );
 
@@ -53,7 +53,7 @@ Future<void> main() async {
     sessionExpiredNotifier: sessionExpiredNotifier,
   );
 
-  final inspectionsRemoteDataSource = InspectionsRemoteDataSource(
+  final inspectionsRemoteDataSource = InspectionsRemoteDataSourceImpl(
     dioClient: dioClient,
   );
 
@@ -78,7 +78,7 @@ Future<void> main() async {
   final authBloc = AuthBloc(authRepository, sessionExpiredNotifier);
   authBloc.add(const AuthSessionChecked());
 
-  final workOrdersRemoteDataSource = WorkOrdersRemoteDataSource(
+  final workOrdersRemoteDataSource = WorkOrdersRemoteDataSourceImpl(
     dioClient: dioClient,
   );
 
