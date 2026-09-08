@@ -6,10 +6,9 @@ import 'package:orbytis_atlas/features/auth/models/login_response.dart';
 
 final class AuthRepository {
   AuthRepository({
-    required AuthRemoteDataSource remoteDataSource,
-    required SecureStorageService secureStorageService,
-  }) : _remoteDataSource = remoteDataSource,
-       _secureStorageService = secureStorageService;
+    required this._remoteDataSource,
+    required this._secureStorageService,
+  });
 
   final AuthRemoteDataSource _remoteDataSource;
   final SecureStorageService _secureStorageService;

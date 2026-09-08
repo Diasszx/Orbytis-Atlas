@@ -559,7 +559,6 @@ Com mais tempo, as principais evoluções seriam:
 
 * ampliar a cobertura de testes automatizados;
 * adicionar integration tests completos do fluxo offline → online;
-* adicionar CI com GitHub Actions para `flutter analyze` e `flutter test`;
 * implementar política de retry com exponential backoff;
 * adicionar telemetria e observabilidade;
 * evoluir a persistência para Drift/SQLite caso o volume e os relacionamentos aumentem;
@@ -1125,6 +1124,22 @@ Se um gatilho automático já tiver enviado a inspeção antes do clique, a aus�
 ---
 
 # Análise estática
+
+## Integração contínua
+
+O workflow [Flutter CI](.github/workflows/flutter_ci.yml) executa no GitHub Actions a cada push em `main` ou `develop` e em pull requests destinados a essas branches. Ele usa Ubuntu e fixa o Flutter **3.47.2 stable**, a mesma versão do ambiente de desenvolvimento.
+
+As verificações são executadas em sequência:
+
+```bash
+flutter pub get
+flutter analyze
+flutter test
+```
+
+Uma falha interrompe o job e fica visível na aba **Actions** e nas verificações do pull request. O workflow tem permissão de leitura do repositório, cache do Flutter e limite de 15 minutos. Não gera APK, publica artefatos ou realiza deploy.
+
+## Execução local
 
 Execute:
 

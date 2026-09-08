@@ -4,11 +4,10 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:orbytis_atlas/features/inspections/repositories/inspections_repository.dart';
-import 'package:orbytis_atlas/features/inspections/services/inspection_sync_coordinator.dart';
-
 import 'package:orbytis_atlas/features/inspections/models/inspection.dart';
 import 'package:orbytis_atlas/features/inspections/models/inspection_sync_status.dart';
+import 'package:orbytis_atlas/features/inspections/repositories/inspections_repository.dart';
+import 'package:orbytis_atlas/features/inspections/services/inspection_sync_coordinator.dart';
 
 import '../repositories/inspections_repository_test.dart'
     show

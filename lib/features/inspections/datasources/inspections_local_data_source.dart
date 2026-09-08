@@ -25,7 +25,7 @@ abstract interface class InspectionsLocalDataSource {
 
 final class InspectionsLocalDataSourceImpl
     implements InspectionsLocalDataSource {
-  InspectionsLocalDataSourceImpl({required Box<String> box}) : _box = box;
+  InspectionsLocalDataSourceImpl({required this._box});
 
   final Box<String> _box;
 

@@ -16,7 +16,7 @@ abstract interface class WorkOrdersLocalDataSource {
 }
 
 final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
-  WorkOrdersLocalDataSourceImpl({required Box<String> box}) : _box = box;
+  WorkOrdersLocalDataSourceImpl({required this._box});
 
   final Box<String> _box;
 

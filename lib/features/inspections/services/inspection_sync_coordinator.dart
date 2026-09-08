@@ -7,10 +7,9 @@ import '../repositories/inspections_repository.dart';
 
 final class InspectionSyncCoordinator with WidgetsBindingObserver {
   InspectionSyncCoordinator({
-    required InspectionsRepository inspectionsRepository,
+    required this._inspectionsRepository,
     Connectivity? connectivity,
-  }) : _inspectionsRepository = inspectionsRepository,
-       _connectivity = connectivity ?? Connectivity();
+  }) : _connectivity = connectivity ?? Connectivity();
 
   final InspectionsRepository _inspectionsRepository;
   final Connectivity _connectivity;

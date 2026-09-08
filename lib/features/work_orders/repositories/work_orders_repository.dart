@@ -6,10 +6,9 @@ import 'package:orbytis_atlas/features/work_orders/models/work_order.dart';
 
 final class WorkOrdersRepository {
   WorkOrdersRepository({
-    required WorkOrdersRemoteDataSource remoteDataSource,
-    required WorkOrdersLocalDataSource localDataSource,
-  }) : _remoteDataSource = remoteDataSource,
-       _localDataSource = localDataSource;
+    required this._remoteDataSource,
+    required this._localDataSource,
+  });
 
   final WorkOrdersRemoteDataSource _remoteDataSource;
   final WorkOrdersLocalDataSource _localDataSource;

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:uuid/uuid.dart';
 
 import '../../../core/errors/network_exception.dart';
@@ -6,21 +8,17 @@ import '../datasources/inspections_remote_data_source.dart';
 import '../errors/inspections_exception.dart';
 import '../models/inspection.dart';
 import '../models/inspection_sync_status.dart';
-import '../services/inspection_photo_service.dart';
 import '../services/inspection_location_service.dart';
+import '../services/inspection_photo_service.dart';
 
 final class InspectionsRepository {
   InspectionsRepository({
-    required InspectionsLocalDataSource localDataSource,
-    required InspectionsRemoteDataSource remoteDataSource,
-    required InspectionPhotoService photoService,
-    required InspectionLocationService locationService,
+    required this._localDataSource,
+    required this._remoteDataSource,
+    required this._photoService,
+    required this._locationService,
     Uuid? uuid,
-  }) : _localDataSource = localDataSource,
-       _remoteDataSource = remoteDataSource,
-       _photoService = photoService,
-       _locationService = locationService,
-       _uuid = uuid ?? const Uuid();
+  }) : _uuid = uuid ?? const Uuid();
 
   final InspectionsLocalDataSource _localDataSource;
   final InspectionsRemoteDataSource _remoteDataSource;
@@ -172,7 +170,8 @@ final class InspectionsRepository {
     try {
       return await _syncInspection(clientId);
     } finally {
-      _syncsInFlight.remove(clientId);
+      // The caller already observes this Future; removing it only releases the key.
+      unawaited(_syncsInFlight.remove(clientId));
     }
   }
 

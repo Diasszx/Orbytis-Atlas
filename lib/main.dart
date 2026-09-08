@@ -27,7 +27,7 @@ import 'package:orbytis_atlas/features/work_orders/repositories/work_orders_repo
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(StartupApp(initialize: _initializeApp));
+  runApp(const StartupApp(initialize: _initializeApp));
 }
 
 Future<Widget> _initializeApp() async {
