@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/inspection.dart';
 import '../../models/inspection_sync_status.dart';
+import 'inspection_sync_status.dart';
 
 final class InspectionHistoryCard extends StatelessWidget {
   const InspectionHistoryCard({
@@ -18,28 +19,6 @@ final class InspectionHistoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final (icon, label, color) = switch (inspection.syncStatus) {
-      InspectionSyncStatus.draft => (
-        Icons.edit_outlined,
-        'Rascunho',
-        theme.colorScheme.secondary,
-      ),
-      InspectionSyncStatus.pending => (
-        Icons.schedule,
-        'Aguardando sincronização',
-        theme.colorScheme.tertiary,
-      ),
-      InspectionSyncStatus.synced => (
-        Icons.cloud_done_outlined,
-        'Sincronizada',
-        Colors.green,
-      ),
-      InspectionSyncStatus.failed => (
-        Icons.error_outline,
-        'Falha na sincronização',
-        theme.colorScheme.error,
-      ),
-    };
 
     return Card(
       child: Padding(
@@ -53,35 +32,23 @@ final class InspectionHistoryCard extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(icon, size: 20, color: color),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    label,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: color,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
+            const SizedBox(height: 12),
+            InspectionSyncStatusView(
+              status: inspection.syncStatus,
+              message: inspection.syncError,
             ),
             const SizedBox(height: 12),
             Text(
               _formatDate(inspection.updatedAt),
               style: theme.textTheme.bodySmall,
             ),
-            if (inspection.syncError case final syncError?
-                when syncError.isNotEmpty) ...[
+            if (inspection.observation case final observation?
+                when observation.isNotEmpty) ...[
               const SizedBox(height: 12),
               Text(
-                syncError,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.error,
-                ),
+                observation,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
             if (inspection.syncStatus == InspectionSyncStatus.failed) ...[
@@ -116,6 +83,6 @@ final class InspectionHistoryCard extends StatelessWidget {
     final hour = date.hour.toString().padLeft(2, '0');
     final minute = date.minute.toString().padLeft(2, '0');
 
-    return '$day/$month às $hour:$minute';
+    return '$day/$month/${date.year} às $hour:$minute';
   }
 }

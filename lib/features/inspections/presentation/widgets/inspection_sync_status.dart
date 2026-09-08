@@ -39,38 +39,32 @@ final class InspectionSyncStatusView extends StatelessWidget {
       ),
     };
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: color),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: color,
-                  ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 20, color: color),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                label,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w600,
                 ),
-                if (message != null && message!.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(message!, style: theme.textTheme.bodyMedium),
-                ],
-              ],
+              ),
             ),
+          ],
+        ),
+        if (message != null && message!.isNotEmpty) ...[
+          const SizedBox(height: 6),
+          Text(
+            message!,
+            style: theme.textTheme.bodySmall?.copyWith(color: color),
           ),
         ],
-      ),
+      ],
     );
   }
 }
