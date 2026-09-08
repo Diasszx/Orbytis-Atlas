@@ -5,6 +5,8 @@
 > Aplicativo mobile desenvolvido em Flutter para gerenciamento de **Ordens de Serviço e Inspeções em campo**, com suporte a operação offline, persistência local e sincronização automática com uma API. O projeto foi desenvolvido como desafio técnico para uma vaga de **Desenvolvedor Mobile Flutter**.
 
 ---
+## Tecnologias
+
 ![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
 ![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
 ![flutter_bloc](https://img.shields.io/badge/flutter__bloc-5A45FF?style=for-the-badge&logo=bloc&logoColor=white)
@@ -37,26 +39,6 @@ O Orbytis Atlas permite que um técnico de campo:
 * sincronize automaticamente os dados quando a conexão estiver disponível;
 * consulte o histórico de inspeções;
 * tente novamente sincronizações rejeitadas pelo servidor.
-
----
-
-## Tecnologias
-
-O projeto utiliza principalmente:
-
-* Flutter
-* Dart
-* flutter_bloc
-* Dio
-* Hive CE
-* flutter_secure_storage
-* GoRouter
-* Geolocator
-* ImagePicker
-* connectivity_plus
-* UUID
-* Mocktail
-* bloc_test
 
 ---
 
