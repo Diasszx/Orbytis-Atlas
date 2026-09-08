@@ -2,49 +2,168 @@
 
 ![Preview do projeto](https://i.imgur.com/f8JGy3W.png)
 
-> Aplicativo mobile desenvolvido em Flutter para gerenciamento de **Ordens de Serviço e Inspeções em campo**, com suporte a operação offline, persistência local e sincronização automática com uma API. O projeto foi desenvolvido como desafio técnico para uma vaga de **Desenvolvedor Mobile Flutter**.
+> Aplicativo mobile desenvolvido em Flutter para gerenciamento de **Ordens de Serviço e Inspeções em campo**, com suporte a operação offline, persistência local e sincronização automática com uma API.
+>
+> Projeto desenvolvido como desafio técnico para uma vaga de **Desenvolvedor Mobile Flutter**.
 
 ---
+
 ## Tecnologias
 
-![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
-![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
-![flutter_bloc](https://img.shields.io/badge/flutter__bloc-5A45FF?style=for-the-badge&logo=bloc&logoColor=white)
-![Dio](https://img.shields.io/badge/Dio-5A64D8?style=for-the-badge&logo=dart&logoColor=white)
-![Hive CE](https://img.shields.io/badge/Hive%20CE-FFCA28?style=for-the-badge&logo=dart&logoColor=black)
-![flutter_secure_storage](https://img.shields.io/badge/flutter__secure__storage-02569B?style=for-the-badge&logo=flutter&logoColor=white)
-![GoRouter](https://img.shields.io/badge/GoRouter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
-![Geolocator](https://img.shields.io/badge/Geolocator-4285F4?style=for-the-badge&logo=googlemaps&logoColor=white)
-![ImagePicker](https://img.shields.io/badge/ImagePicker-02569B?style=for-the-badge&logo=flutter&logoColor=white)
-![connectivity_plus](https://img.shields.io/badge/connectivity__plus-02569B?style=for-the-badge&logo=flutter&logoColor=white)
-![UUID](https://img.shields.io/badge/UUID-6A53F6?style=for-the-badge&logo=dart&logoColor=white)
-![Mocktail](https://img.shields.io/badge/Mocktail-E91E63?style=for-the-badge&logo=dart&logoColor=white)
-![bloc_test](https://img.shields.io/badge/bloc__test-5A45FF?style=for-the-badge&logo=bloc&logoColor=white)
----
-
-## Visão geral
-
-O Orbytis Atlas permite que um técnico de campo:
-
-* realize autenticação;
-* consulte ordens de serviço;
-* visualize detalhes de uma OS;
-* continue acessando ordens previamente carregadas mesmo sem conexão;
-* inicie e salve inspeções como rascunho;
-* registre observações;
-* capture fotos;
-* registre localização por GPS;
-* conclua inspeções offline;
-* acompanhe o estado de sincronização;
-* sincronize automaticamente os dados quando a conexão estiver disponível;
-* consulte o histórico de inspeções;
-* tente novamente sincronizações rejeitadas pelo servidor.
+![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge\&logo=flutter\&logoColor=white)
+![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge\&logo=dart\&logoColor=white)
+![flutter\_bloc](https://img.shields.io/badge/flutter__bloc-5A45FF?style=for-the-badge\&logo=bloc\&logoColor=white)
+![Dio](https://img.shields.io/badge/Dio-5A64D8?style=for-the-badge\&logo=dart\&logoColor=white)
+![Hive CE](https://img.shields.io/badge/Hive%20CE-FFCA28?style=for-the-badge\&logo=dart\&logoColor=black)
+![flutter\_secure\_storage](https://img.shields.io/badge/flutter__secure__storage-02569B?style=for-the-badge\&logo=flutter\&logoColor=white)
+![GoRouter](https://img.shields.io/badge/GoRouter-02569B?style=for-the-badge\&logo=flutter\&logoColor=white)
+![Geolocator](https://img.shields.io/badge/Geolocator-4285F4?style=for-the-badge\&logo=googlemaps\&logoColor=white)
+![ImagePicker](https://img.shields.io/badge/ImagePicker-02569B?style=for-the-badge\&logo=flutter\&logoColor=white)
+![connectivity\_plus](https://img.shields.io/badge/connectivity__plus-02569B?style=for-the-badge\&logo=flutter\&logoColor=white)
+![UUID](https://img.shields.io/badge/UUID-6A53F6?style=for-the-badge\&logo=dart\&logoColor=white)
+![Mocktail](https://img.shields.io/badge/Mocktail-E91E63?style=for-the-badge\&logo=dart\&logoColor=white)
+![bloc\_test](https://img.shields.io/badge/bloc__test-5A45FF?style=for-the-badge\&logo=bloc\&logoColor=white)
 
 ---
 
-# Arquitetura
+# Como executar o projeto
 
-O projeto utiliza uma organização baseada em **features**, com responsabilidades separadas entre apresentação, regras de coordenação de dados e infraestrutura.
+## Pré-requisitos
+
+Tenha instalado:
+
+* Flutter;
+* Dart;
+* Android SDK;
+* Node.js;
+* dispositivo Android físico ou emulador.
+
+Verifique o ambiente Flutter:
+
+```bash
+flutter doctor
+```
+
+Clone o repositório e instale as dependências:
+
+```bash
+flutter pub get
+```
+
+---
+
+## API Mock
+
+A API mock utilizada pelo aplicativo faz parte dos **materiais oficiais fornecidos para o desafio técnico**.
+
+O pacote original do desafio, contendo a API mock, contrato da API e demais arquivos de apoio, foi disponibilizado pela empresa:
+
+[Materiais oficiais do Desafio Flutter](https://engeselt-my.sharepoint.com/personal/demesio_oliveira_engeselt_onmicrosoft_com/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fdemesio_oliveira_engeselt_onmicrosoft_com%2FDocuments%2FDesafio%20Flutter%2Fdesafio%2Dflutter%2Ezip&parent=%2Fpersonal%2Fdemesio_oliveira_engeselt_onmicrosoft_com%2FDocuments%2FDesafio%20Flutter&ga=1&LOF=1)
+
+> A API mock não foi desenvolvida como parte deste aplicativo. Ela foi fornecida pela empresa como suporte para desenvolvimento e validação do desafio técnico.
+
+### Instalando e executando o mock
+
+Após baixar e extrair o material do desafio, acesse a pasta da API:
+
+```bash
+cd mock-api
+```
+
+Instale as dependências:
+
+```bash
+npm install
+```
+
+Inicie o servidor:
+
+```bash
+npm run start
+```
+
+A API ficará disponível por padrão em:
+
+```text
+http://localhost:3000
+```
+
+Utilize as credenciais disponibilizadas nos materiais oficiais do desafio para realizar o login.
+
+---
+
+## Executando no Android Emulator
+
+Dentro do Android Emulator, `localhost` representa o próprio dispositivo virtual.
+
+Para acessar a API executada na máquina host, utilize:
+
+```text
+http://10.0.2.2:3000
+```
+
+Depois execute:
+
+```bash
+flutter run
+```
+
+---
+
+## Executando em dispositivo Android físico
+
+Com o dispositivo conectado por USB e a depuração USB habilitada:
+
+```bash
+adb devices
+```
+
+Crie um redirecionamento para a porta da API:
+
+```bash
+adb reverse tcp:3000 tcp:3000
+```
+
+Nesse cenário, o aplicativo pode acessar:
+
+```text
+http://localhost:3000
+```
+
+Depois:
+
+```bash
+flutter run
+```
+
+Para verificar os redirecionamentos existentes:
+
+```bash
+adb reverse --list
+```
+
+Para remover:
+
+```bash
+adb reverse --remove tcp:3000
+```
+
+A remoção do `adb reverse` também pode ser utilizada para validar o comportamento offline do aplicativo durante o desenvolvimento.
+
+---
+
+# Arquitetura escolhida
+
+O projeto utiliza uma arquitetura organizada por **features**, inspirada nos princípios de Clean Architecture e SOLID.
+
+O objetivo foi separar:
+
+* apresentação;
+* gerenciamento de estado;
+* coordenação das regras da aplicação;
+* acesso a dados;
+* serviços externos;
+* detalhes de infraestrutura.
 
 Estrutura simplificada:
 
@@ -86,8 +205,6 @@ feature/
 
 ## Fluxo de dependências
 
-A camada de apresentação não acessa diretamente Dio, Hive, ImagePicker ou Geolocator.
-
 O fluxo principal é:
 
 ```text
@@ -102,7 +219,7 @@ Abstrações
 Implementações concretas
 ```
 
-Exemplo:
+Por exemplo:
 
 ```text
 InspectionBloc
@@ -123,7 +240,15 @@ Implementações concretas
 └──────────┴───────┴─────────────┴────────────┘
 ```
 
-Os contratos são definidos utilizando `abstract interface class`, enquanto as implementações concretas permanecem `final`.
+A camada de apresentação não acessa diretamente Dio, Hive, ImagePicker ou Geolocator.
+
+---
+
+## Dependency Inversion
+
+Os contratos de infraestrutura são definidos utilizando `abstract interface class`.
+
+As implementações reais permanecem `final`.
 
 Exemplo:
 
@@ -136,59 +261,64 @@ abstract interface class InspectionsRemoteDataSource {
 
 final class InspectionsRemoteDataSourceImpl
     implements InspectionsRemoteDataSource {
-  // implementação com Dio
+  // implementação utilizando Dio
 }
 ```
 
-Essa abordagem reduz o acoplamento das regras da aplicação com tecnologias específicas e facilita a substituição das implementações e a criação de testes automatizados.
-
----
-
-# Clean Architecture e SOLID
-
-O projeto busca aplicar princípios de Clean Architecture sem introduzir complexidade desnecessária para o escopo da aplicação.
-
-Um dos princípios utilizados é o **Dependency Inversion Principle**.
-
-Os repositories dependem de abstrações:
+Assim:
 
 ```text
 Repository
    ↓
 Interface
    ↑
-Implementação
+Implementação concreta
 ```
 
-e não diretamente de detalhes de infraestrutura:
+em vez de:
 
 ```text
 Repository
-   ✕
-Hive / Dio / Geolocator / ImagePicker
+   ↓
+Dio / Hive / Geolocator / ImagePicker
 ```
 
-O `main.dart` funciona como **Composition Root**, sendo responsável por construir e conectar as implementações concretas:
+Essa decisão reduz o acoplamento e facilita:
+
+* testes automatizados;
+* substituição das implementações;
+* evolução da infraestrutura;
+* manutenção do código.
+
+---
+
+## Composition Root
+
+O `main.dart` funciona como **Composition Root** da aplicação.
+
+Ele é responsável por construir as implementações concretas e conectá-las:
 
 ```text
 main.dart
  ↓
-cria implementações
+DataSources / Services
  ↓
-injeta nos repositories
+Repositories
  ↓
-injeta nos BLoCs
+BLoCs
+ ↓
+UI
 ```
 
-Isso mantém os detalhes de infraestrutura fora das regras de coordenação da aplicação.
+Dessa forma, as camadas internas não precisam conhecer como suas dependências concretas são construídas.
 
 ---
 
-# Gerenciamento de estado
+## Gerenciamento de estado
 
 Foi utilizado `flutter_bloc`.
 
-Exemplo de fluxo:
+Fluxo:
 
 ```text
 UI
@@ -204,15 +334,300 @@ State
 UI
 ```
 
-Os BLoCs não conhecem detalhes de:
+Os BLoCs não possuem conhecimento direto de:
 
-* requisições HTTP;
 * Dio;
 * Hive;
 * ImagePicker;
-* Geolocator.
+* Geolocator;
+* detalhes HTTP.
 
-Eles trabalham apenas com os repositories e os estados necessários para a interface.
+---
+
+# Como funciona a fila de sincronização
+
+O aplicativo foi desenvolvido considerando que a conexão de rede pode ser instável durante o trabalho em campo.
+
+Por isso, uma inspeção não depende da disponibilidade imediata da API para ser concluída.
+
+Os estados locais utilizados são:
+
+```text
+draft
+pending
+synced
+failed
+```
+
+### `draft`
+
+Inspeção ainda em edição.
+
+Não participa da fila de sincronização.
+
+### `pending`
+
+Inspeção concluída e persistida localmente, aguardando envio para o servidor.
+
+### `synced`
+
+Inspeção sincronizada com sucesso.
+
+### `failed`
+
+Inspeção rejeitada pelo servidor por um erro que exige atenção ou nova tentativa manual.
+
+---
+
+## Fluxo de conclusão
+
+Ao concluir uma inspeção:
+
+```text
+Usuário conclui
+ ↓
+validação local
+ ↓
+persistência no Hive
+ ↓
+status = pending
+ ↓
+tentativa de sincronização
+```
+
+A persistência acontece **antes da requisição HTTP**.
+
+Assim, mesmo sem conexão, o trabalho realizado pelo técnico permanece salvo no dispositivo.
+
+---
+
+## Sincronização com sucesso
+
+```text
+pending
+ ↓
+POST /inspections
+ ↓
+sucesso
+ ↓
+serverId
+ ↓
+synced
+ ↓
+Hive atualizado
+```
+
+---
+
+## Falha de conexão
+
+Em erros de rede:
+
+```text
+pending
+ ↓
+POST /inspections
+ ↓
+sem conexão / timeout
+ ↓
+continua pending
+```
+
+A inspeção permanece disponível localmente e pode ser sincronizada posteriormente.
+
+---
+
+## Rejeição pelo servidor
+
+Quando a API responde com uma rejeição dos dados:
+
+```text
+pending
+ ↓
+POST /inspections
+ ↓
+HTTP 4xx
+ ↓
+failed
+ ↓
+syncError persistido
+```
+
+O estado `failed` é diferente de uma indisponibilidade temporária de rede.
+
+---
+
+## Sincronização automática
+
+Inspeções `pending` são verificadas automaticamente quando:
+
+* o aplicativo é iniciado;
+* uma conexão volta a estar disponível;
+* o aplicativo retorna ao estado ativo.
+
+Fluxo:
+
+```text
+pending
+ ↓
+InspectionSyncCoordinator
+ ↓
+InspectionsRepository
+ ↓
+POST /inspections
+```
+
+O `connectivity_plus` é utilizado apenas como **gatilho para tentar uma nova sincronização**.
+
+Ele não é utilizado como fonte definitiva para afirmar que a API está acessível.
+
+A própria requisição HTTP continua sendo a fonte de verdade.
+
+---
+
+## Retry manual
+
+Inspeções em `pending` participam do fluxo automático.
+
+Inspeções em `failed` não entram em um loop infinito de tentativas.
+
+Nesse caso, o histórico disponibiliza:
+
+```text
+Tentar novamente
+```
+
+permitindo uma nova tentativa manual.
+
+---
+
+## Idempotência
+
+Cada inspeção recebe um `clientId` gerado localmente com UUID.
+
+Esse identificador permanece o mesmo entre as tentativas:
+
+```text
+clientId = A
+ ↓
+tentativa
+ ↓
+falha
+ ↓
+retry
+ ↓
+clientId = A
+```
+
+O `clientId` pode ser utilizado pelo backend como chave de idempotência, reduzindo o risco de registros duplicados em situações como:
+
+* timeout;
+* perda de conexão;
+* repetição de envio;
+* fechamento inesperado do aplicativo.
+
+---
+
+# O que ficou pendente / o que faria com mais tempo
+
+O escopo principal do desafio foi priorizado, especialmente os fluxos de autenticação, ordens de serviço, inspeção, persistência local e sincronização offline-first.
+
+Com mais tempo, as principais evoluções seriam:
+
+* ampliar a cobertura de testes automatizados;
+* adicionar integration tests completos do fluxo offline → online;
+* adicionar CI com GitHub Actions para `flutter analyze` e `flutter test`;
+* implementar política de retry com exponential backoff;
+* adicionar telemetria e observabilidade;
+* evoluir a persistência para Drift/SQLite caso o volume e os relacionamentos aumentem;
+* implementar gerenciamento mais sofisticado de conflitos de sincronização;
+* adicionar paginação às ordens de serviço;
+* melhorar a configuração de ambientes de desenvolvimento/homologação/produção;
+* adicionar internacionalização;
+* ampliar testes de acessibilidade;
+* adicionar Golden Tests para os principais componentes visuais;
+* aplicar otimizações adicionais de compressão e armazenamento de imagens.
+
+Para um cenário de produção, também seria importante incluir monitoramento de falhas, métricas de sincronização e uma política mais completa para conflitos entre dados locais e remotos.
+
+---
+
+# Visão geral
+
+O Orbytis Atlas permite que um técnico de campo:
+
+* realize autenticação;
+* consulte ordens de serviço;
+* visualize detalhes de uma OS;
+* continue acessando ordens previamente carregadas mesmo sem conexão;
+* inicie e salve inspeções como rascunho;
+* registre observações;
+* capture fotos;
+* registre localização por GPS;
+* conclua inspeções offline;
+* acompanhe o estado de sincronização;
+* sincronize automaticamente os dados quando a conexão estiver disponível;
+* consulte o histórico de inspeções;
+* tente novamente sincronizações rejeitadas pelo servidor.
+
+---
+
+# Identidade visual
+
+A identidade visual do **Orbytis Atlas** foi desenvolvida tomando como referência a própria identidade pública da **Orbytis**, buscando manter coerência entre o aplicativo criado para o desafio e a linguagem visual utilizada pela marca.
+
+A principal referência utilizada foi o projeto de identidade visual publicado no Behance:
+
+[ORBYITIS — Identidade Visual](https://www.behance.net/gallery/239515133/ORBYITIS-Identidade-Visual)
+
+A partir dessa referência, elementos da marca foram adaptados para uma experiência mobile voltada ao trabalho de campo.
+
+Entre os elementos utilizados estão:
+
+* predominância de tons de roxo e azul;
+* gradientes baseados na paleta visual da marca;
+* formas circulares e elementos gráficos aplicados aos headers;
+* superfícies de alto contraste;
+* linguagem visual moderna e tecnológica;
+* componentes reutilizáveis para preservar consistência entre as telas.
+
+A paleta utilizada pelo aplicativo inclui:
+
+```text
+#BBA7FC
+#9958FC
+#6A53F6
+#4247DA
+#222D9C
+#1D2769
+```
+
+Os tokens visuais estão centralizados em:
+
+```text
+lib/app/theme/
+├── app_colors.dart
+├── app_gradients.dart
+└── app_theme.dart
+```
+
+Também foi criado o componente reutilizável `OrbytisHeader`, mantendo a mesma linguagem visual nas principais telas.
+
+A interface utiliza **Material 3** como base, adaptada à identidade visual e ao contexto de utilização em campo.
+
+Foram priorizados:
+
+* alto contraste;
+* legibilidade;
+* áreas de toque maiores;
+* hierarquia clara de ações;
+* feedback visual de carregamento;
+* feedback de erro;
+* feedback de sincronização;
+* estados acompanhados por texto, ícone e cor;
+* suporte a temas claro e escuro.
+
+O objetivo foi evitar uma interface genérica de desafio técnico e aproximar o aplicativo de um produto que pudesse integrar o ecossistema visual da Orbytis.
 
 ---
 
@@ -236,15 +651,13 @@ Dio Interceptor
 Authorization: Bearer <token>
 ```
 
-O token não é armazenado em Hive ou SharedPreferences.
-
-Foi utilizado:
+O token é armazenado utilizando:
 
 ```text
 flutter_secure_storage
 ```
 
-para armazenar informações sensíveis da sessão.
+em vez de Hive ou armazenamento local não destinado a informações sensíveis.
 
 ---
 
@@ -252,7 +665,7 @@ para armazenar informações sensíveis da sessão.
 
 O cliente HTTP trata respostas `401 Unauthorized`.
 
-Quando isso ocorre:
+Fluxo:
 
 ```text
 401
@@ -268,7 +681,7 @@ redirecionamento para login
 
 O cache local não é utilizado para mascarar erros de autenticação.
 
-Por exemplo, uma tentativa de carregar uma OS que resulte em `401` não retorna silenciosamente dados antigos do Hive.
+Assim, uma requisição que retorna `401` não é silenciosamente substituída por dados antigos do Hive.
 
 ---
 
@@ -290,13 +703,13 @@ Hive
 UI
 ```
 
-O retorno remoto é utilizado para atualizar o cache local.
+Quando uma listagem completa é recebida, o cache local é atualizado.
 
 ---
 
 ## Ordens de Serviço offline
 
-Quando ocorre uma falha de conexão:
+Quando existe falha de conexão:
 
 ```text
 GET /work-orders
@@ -310,9 +723,9 @@ Hive
 UI
 ```
 
-Assim, ordens previamente carregadas continuam disponíveis offline.
+Ordens previamente carregadas continuam disponíveis.
 
-O mesmo comportamento é utilizado na tela de detalhes:
+O mesmo princípio é aplicado aos detalhes:
 
 ```text
 GET /work-orders/:id
@@ -321,218 +734,28 @@ sem conexão
  ↓
 cache local pelo id
  ↓
-detalhe da OS
+detalhes da OS
 ```
 
-Falhas de autenticação não utilizam esse fallback.
-
----
-
-# Inspeções
-
-Uma inspeção possui estados locais de sincronização:
-
-```text
-draft
-pending
-synced
-failed
-```
-
-### `draft`
-
-Inspeção ainda em edição.
-
-Não deve ser enviada para a API.
-
-### `pending`
-
-Inspeção concluída e persistida localmente, aguardando sincronização.
-
-### `synced`
-
-Inspeção aceita e armazenada pelo servidor.
-
-### `failed`
-
-O servidor recebeu a requisição, mas rejeitou a inspeção por algum erro que exige atenção ou nova tentativa manual.
-
----
-
-# Estratégia Offline-First
-
-Uma das principais decisões do projeto foi tratar a persistência local como parte do fluxo principal da aplicação, e não apenas como fallback.
-
-Ao concluir uma inspeção:
-
-```text
-Usuário conclui
- ↓
-validação local
- ↓
-Hive
- ↓
-status = pending
- ↓
-tentativa de sincronização
-```
-
-A inspeção é persistida **antes** da tentativa de comunicação com a API.
-
-Isso permite que o técnico continue trabalhando mesmo quando estiver sem conexão.
-
----
-
-## Fluxo de sincronização
-
-```text
-Inspeção concluída
- ↓
-pending
- ↓
-POST /inspections
- ↓
-┌───────────────────────────┐
-│                           │
-sucesso                 erro de conexão
-│                           │
-synced                    pending
-│                           │
-serverId                aguarda rede
-```
-
-Se a API rejeitar os dados:
-
-```text
-POST /inspections
- ↓
-HTTP 4xx
- ↓
-failed
- ↓
-syncError
-```
-
-O erro é persistido para que possa ser exibido posteriormente ao usuário.
-
----
-
-# Idempotência
-
-Cada inspeção recebe um:
-
-```text
-clientId
-```
-
-gerado localmente através de UUID.
-
-Esse identificador não muda entre tentativas de sincronização.
-
-Exemplo:
-
-```text
-clientId = A
- ↓
-tentativa 1
- ↓
-falha de rede
- ↓
-retry
- ↓
-clientId = A
-```
-
-O mesmo identificador é reutilizado em todas as tentativas.
-
-Isso permite que o backend utilize o `clientId` como chave de idempotência e reduz o risco de criação de registros duplicados em cenários como:
-
-* perda de conexão;
-* timeout;
-* fechamento inesperado do aplicativo;
-* retry da mesma inspeção.
-
----
-
-# Sincronização automática
-
-A sincronização não depende de um botão manual para o fluxo normal.
-
-Inspeções `pending` são verificadas automaticamente quando:
-
-* o aplicativo é iniciado;
-* uma conexão de rede volta a ficar disponível;
-* o aplicativo retorna ao estado ativo.
-
-Fluxo:
-
-```text
-pending
- ↓
-rede disponível
- ↓
-InspectionSyncCoordinator
- ↓
-InspectionsRepository
- ↓
-POST /inspections
-```
-
-Foi utilizado `connectivity_plus` como um **gatilho para tentar sincronizar**, mas ele não é considerado fonte definitiva para determinar se a API está acessível.
-
-A confirmação real vem da própria requisição HTTP.
-
-Isso evita assumir que possuir Wi-Fi ou rede móvel significa necessariamente possuir acesso ao servidor.
-
----
-
-## Diferença entre `pending` e `failed`
-
-O projeto diferencia falhas de conectividade de rejeições do servidor.
-
-### Problema de rede
-
-```text
-pending
-```
-
-A aplicação tenta novamente automaticamente.
-
-### Rejeição da API
-
-```text
-failed
-```
-
-A inspeção não entra em um loop infinito de tentativas automáticas.
-
-O usuário pode utilizar a ação:
-
-```text
-Tentar novamente
-```
-
-no histórico.
+Erros de autenticação não utilizam fallback local.
 
 ---
 
 # Rascunhos e autosave
 
-Uma inspeção iniciada é persistida como:
+Uma inspeção iniciada é persistida inicialmente como:
 
 ```text
 draft
 ```
 
-Se o usuário voltar posteriormente para a mesma OS, o rascunho existente é recuperado em vez de criar automaticamente uma nova inspeção.
+Se o usuário retornar posteriormente à mesma OS, o rascunho existente é recuperado em vez de criar automaticamente uma nova inspeção.
 
 ---
 
 ## Autosave
 
-A observação utiliza autosave com debounce.
-
-Fluxo simplificado:
+A observação utiliza autosave com debounce:
 
 ```text
 Usuário digita
@@ -548,9 +771,9 @@ Hive
 saved
 ```
 
-Isso reduz operações excessivas de escrita sem exigir que o usuário pressione um botão a cada alteração.
+Isso reduz operações excessivas de escrita durante a digitação.
 
-A interface também possui a ação:
+Também existe a ação:
 
 ```text
 Salvar e sair
@@ -562,22 +785,16 @@ para garantir a persistência antes de deixar a inspeção.
 
 # Fotos
 
-As fotos são capturadas utilizando:
+As fotos são capturadas utilizando `image_picker`.
 
-```text
-image_picker
-```
-
-A imagem retornada pela câmera pode inicialmente estar em uma localização temporária.
-
-Por isso, o arquivo é copiado para o diretório permanente da aplicação:
+Como a imagem retornada pela câmera pode estar inicialmente em um diretório temporário, ela é copiada para uma localização permanente da aplicação:
 
 ```text
 application documents/
 └── inspection_photos/
 ```
 
-O Hive armazena apenas o caminho local da imagem.
+O Hive armazena o caminho local da imagem.
 
 Isso evita depender do cache temporário do sistema operacional.
 
@@ -585,29 +802,25 @@ Isso evita depender do cache temporário do sistema operacional.
 
 # Localização
 
-A localização é obtida através do:
+A localização é obtida utilizando `geolocator`.
 
-```text
-geolocator
-```
+O fluxo trata:
 
-O fluxo verifica:
-
-* serviço de localização;
+* serviço de localização desabilitado;
 * permissão atual;
 * solicitação de permissão;
 * permissão negada;
 * permissão permanentemente negada.
 
-As coordenadas são persistidas junto à inspeção.
+Latitude e longitude são persistidas junto à inspeção.
 
 ---
 
-# Validação para conclusão
+# Validação da inspeção
 
-Antes de uma inspeção sair de `draft`, são validados os dados obrigatórios.
+Antes de sair de `draft`, a inspeção passa por validações locais.
 
-Entre as validações estão:
+Entre os dados obrigatórios estão:
 
 * observação válida;
 * foto registrada;
@@ -622,17 +835,15 @@ draft
 pending
 ```
 
-Somente então ela entra na fila de sincronização.
+Somente depois ela entra na fila de sincronização.
 
 ---
 
 # Histórico de inspeções
 
-O histórico utiliza os dados persistidos localmente.
+O histórico utiliza os dados persistidos localmente e continua disponível offline.
 
-Por isso, também pode ser consultado offline.
-
-Os estados são apresentados com texto e ícone, evitando depender apenas de cores:
+Os estados são representados utilizando texto e ícone, evitando depender apenas de cores:
 
 ```text
 ✎ Rascunho
@@ -641,29 +852,25 @@ Os estados são apresentados com texto e ícone, evitando depender apenas de cor
 ⚠ Falha na sincronização
 ```
 
-Filtros disponíveis:
+Filtros:
 
-* Todas
-* Rascunhos
-* Pendentes
-* Sincronizadas
-* Falhas
+* Todas;
+* Rascunhos;
+* Pendentes;
+* Sincronizadas;
+* Falhas.
 
-Inspeções em estado `failed` permitem nova tentativa manual.
+Inspeções em estado `failed` permitem uma nova tentativa manual.
 
 ---
 
 # Persistência local
 
-Foi utilizado:
-
-```text
-Hive CE
-```
+Foi utilizado **Hive CE**.
 
 Os objetos são serializados como JSON e armazenados em `Box<String>`.
 
-Essa decisão evita geração adicional de adapters para o escopo do desafio e mantém a persistência simples.
+Essa decisão mantém a persistência simples para o escopo do desafio e evita geração adicional de adapters.
 
 Os dados locais incluem principalmente:
 
@@ -681,7 +888,7 @@ Informações sensíveis de autenticação não são armazenadas no Hive.
 
 # Tratamento de erros
 
-Erros de infraestrutura são convertidos antes de chegar à camada de apresentação.
+Erros de infraestrutura são convertidos antes de chegar à apresentação.
 
 Exemplo:
 
@@ -699,40 +906,23 @@ BLoC
 State
 ```
 
-Isso evita que BLoCs e widgets dependam diretamente do Dio.
+Isso evita que widgets e BLoCs dependam diretamente do Dio.
 
 São diferenciados cenários como:
 
 * timeout;
-* erro de conexão;
+* falha de conexão;
 * `401 Unauthorized`;
 * respostas inválidas;
-* erros de validação do servidor.
-
----
-
-# Interface
-
-A aplicação utiliza Material 3 e identidade visual própria do Orbytis Atlas.
-
-Foram priorizados aspectos importantes para uso em campo:
-
-* contraste;
-* textos legíveis;
-* áreas de toque maiores;
-* ações principais visíveis;
-* feedback de carregamento;
-* feedback de erro;
-* identificação textual dos estados;
-* suporte a tema claro e escuro.
+* rejeições de validação pelo servidor.
 
 ---
 
 # Testes
 
-O projeto possui testes automatizados focados principalmente nas regras críticas do fluxo offline e de sincronização.
+Os testes automatizados foram concentrados principalmente nas regras críticas relacionadas a persistência, comportamento offline e sincronização.
 
-Para executar:
+Execute:
 
 ```bash
 flutter test
@@ -740,9 +930,9 @@ flutter test
 
 ---
 
-## Testes do `InspectionsRepository`
+## `InspectionsRepository`
 
-Entre os cenários testados:
+Entre os cenários validados:
 
 ```text
 pending + sucesso
@@ -750,7 +940,7 @@ pending + sucesso
 ```
 
 ```text
-serverId retornado pela API
+serverId retornado
 → persistido localmente
 ```
 
@@ -771,7 +961,7 @@ HTTP 400
 
 ```text
 draft
-→ não é enviado para API
+→ não é enviado
 ```
 
 ```text
@@ -781,33 +971,33 @@ synced
 
 ---
 
-## Testes do `InspectionBloc`
+## `InspectionBloc`
 
-São validados cenários como:
+São validados comportamentos como:
 
-* carregamento do rascunho;
-* alteração da observação;
+* carregamento de rascunho;
+* alteração de observação;
 * autosave;
 * estados `unsaved`, `saving` e `saved`;
 * conclusão válida;
 * transição `draft → pending`;
-* bloqueio de conclusão de inspeção incompleta.
+* bloqueio de conclusão quando dados obrigatórios estão ausentes.
 
 ---
 
-## Testes do `WorkOrdersRepository`
+## `WorkOrdersRepository`
 
-São validados:
+Entre os cenários testados estão:
 
 ```text
 API disponível
 → dados remotos
-→ atualização do cache
+→ cache atualizado
 ```
 
 ```text
 API indisponível
-→ dados do Hive
+→ fallback para Hive
 ```
 
 ```text
@@ -822,150 +1012,76 @@ detalhes offline
 
 ---
 
-## Widget tests
+## Widget Tests
 
-Também são utilizados testes de widgets para validar a representação visual dos estados importantes da aplicação, como os estados de sincronização no histórico.
-
----
-
-# Como executar
-
-## Pré-requisitos
-
-Tenha instalado:
-
-* Flutter
-* Dart
-* Android SDK
-* Node.js
-* dispositivo Android ou emulador
-
-Verifique o ambiente:
-
-```bash
-flutter doctor
-```
-
-Instale as dependências:
-
-```bash
-flutter pub get
-```
+Os testes de widget validam componentes e representações importantes da interface, incluindo estados relacionados à sincronização.
 
 ---
 
-API Mock
+# Testando manualmente o fluxo offline → online
 
-A API mock utilizada pelo aplicativo faz parte dos materiais oficiais fornecidos para o desafio técnico.
+Em um dispositivo físico conectado via ADB:
 
-O pacote original do desafio, contendo a API mock, contrato da API e demais arquivos de apoio, foi disponibilizado pela empresa através do seguinte link:
-[
-Materiais oficiais do Desafio Flutter](https://engeselt-my.sharepoint.com/personal/demesio_oliveira_engeselt_onmicrosoft_com/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fdemesio%5Foliveira%5Fengeselt%5Fonmicrosoft%5Fcom%2FDocuments%2FDesafio%20Flutter%2Fdesafio%2Dflutter%2Ezip&parent=%2Fpersonal%2Fdemesio%5Foliveira%5Fengeselt%5Fonmicrosoft%5Fcom%2FDocuments%2FDesafio%20Flutter&ga=1&LOF=1)
-
-A API mock não foi desenvolvida como parte deste aplicativo. Ela foi fornecida pela empresa exclusivamente como suporte para desenvolvimento e validação do desafio técnico.
-
-Executando a API mock
-
-Após baixar e extrair o pacote fornecido pela empresa, acesse o diretório da API:
-
-cd mock-api
-
-Instale as dependências:
-
-npm install
-
-Inicie o servidor:
-
-npm run start
-
-Por padrão, a API será disponibilizada em:
-
-http://localhost:3000
-Android Emulator
-
-No Android Emulator, utilize:
-
-http://10.0.2.2:3000
-
-pois localhost dentro do emulador referencia o próprio dispositivo virtual.
-
-Dispositivo Android físico
-
-Para desenvolvimento utilizando um dispositivo Android conectado via USB, é possível redirecionar a porta da máquina para o dispositivo:
-
-adb reverse tcp:3000 tcp:3000
-
-Nesse cenário, o aplicativo pode utilizar:
-
-http://localhost:3000
-
-Para remover o redirecionamento:
-
-adb reverse --remove tcp:3000
-
-Esse comando também pode ser utilizado durante a validação do comportamento offline da aplicação.
-
----
-
-# Testando o comportamento offline
-
-Uma forma de validar o fluxo em dispositivo físico é:
-
-1. iniciar a API;
-2. executar `adb reverse tcp:3000 tcp:3000`;
-3. realizar login;
-4. carregar as ordens de serviço;
-5. remover o reverse:
-
-```bash
-adb reverse --remove tcp:3000
-```
-
-6. confirmar que as ordens previamente carregadas continuam disponíveis;
-7. abrir o detalhe de uma OS;
-8. criar uma inspeção;
-9. preencher observação;
-10. registrar foto;
-11. registrar localização;
-12. concluir a inspeção;
-13. confirmar que o estado permanece `pending`;
-14. restaurar a comunicação:
+1. inicie a API;
+2. execute:
 
 ```bash
 adb reverse tcp:3000 tcp:3000
 ```
 
-15. retornar ao aplicativo;
-16. confirmar a sincronização automática;
-17. verificar o estado `synced` no histórico.
+3. realize login;
+4. carregue as ordens de serviço;
+5. remova o redirecionamento:
+
+```bash
+adb reverse --remove tcp:3000
+```
+
+6. confirme que as ordens previamente carregadas continuam disponíveis;
+7. abra os detalhes de uma OS;
+8. inicie uma inspeção;
+9. preencha a observação;
+10. registre uma foto;
+11. registre a localização;
+12. conclua a inspeção;
+13. confirme que ela permanece em `pending`;
+14. restaure o acesso à API:
+
+```bash
+adb reverse tcp:3000 tcp:3000
+```
+
+15. retorne ao aplicativo;
+16. confirme a sincronização automática;
+17. verifique o estado `synced` no histórico.
+
+Esse fluxo valida manualmente o principal cenário offline-first proposto pelo desafio.
 
 ---
 
 # Análise estática
 
-Para executar o analyzer:
+Execute:
 
 ```bash
 flutter analyze
 ```
 
-O projeto utiliza regras adicionais de lint e análise mais estrita, incluindo:
+O projeto utiliza análise mais estrita, incluindo regras como:
 
-* `strict-casts`
-* `strict-inference`
-* `strict-raw-types`
-* `prefer_const_constructors`
-* `prefer_const_declarations`
-* `always_declare_return_types`
-* `avoid_print`
-* `close_sinks`
-* `prefer_final_locals`
+* `strict-casts`;
+* `strict-inference`;
+* `strict-raw-types`;
+* `prefer_const_constructors`;
+* `prefer_const_declarations`;
+* `always_declare_return_types`;
+* `avoid_print`;
+* `close_sinks`;
+* `prefer_final_locals`.
 
 ---
 
 # Formatação
-
-Para formatar o código:
 
 ```bash
 dart format lib test
@@ -977,35 +1093,35 @@ dart format lib test
 
 ## Por que BLoC?
 
-Foi escolhido para tornar explícitas as transições de estado e separar eventos da interface das regras executadas pela aplicação.
+O BLoC torna explícitas as transições de estado e separa eventos da interface das regras executadas pela aplicação.
 
-Também facilita testes de estados sem depender diretamente da UI.
+Também facilita testes sem depender diretamente da árvore de widgets.
 
 ---
 
 ## Por que Hive?
 
-O escopo exige persistência local e funcionamento offline.
+O desafio exige persistência local e comportamento offline.
 
-Hive fornece uma solução simples e adequada para o volume de dados da aplicação, sem exigir banco relacional ou migrations complexas.
+Hive fornece uma solução simples e adequada ao volume de dados do projeto, sem exigir banco relacional ou migrations mais complexas.
 
-Para uma aplicação de produção com relacionamentos mais complexos e grande volume de dados, uma evolução possível seria utilizar SQLite ou Drift.
+Caso os relacionamentos e o volume de dados aumentassem, uma evolução possível seria Drift/SQLite.
 
 ---
 
 ## Por que FlutterSecureStorage?
 
-O token JWT é uma informação sensível e não deve ser salvo junto aos demais dados da aplicação.
+O JWT é uma informação sensível e não deve ser armazenado junto aos demais dados da aplicação.
 
-Por isso, ele é armazenado utilizando mecanismos seguros fornecidos pelo sistema operacional.
+Por isso, é utilizado armazenamento seguro disponibilizado pelo sistema operacional.
 
 ---
 
-## Por que sincronizar depois de salvar localmente?
+## Por que salvar localmente antes de sincronizar?
 
-Porque a rede não pode ser considerada confiável em um aplicativo destinado a trabalho de campo.
+A aplicação é voltada ao trabalho de campo, onde a conectividade não pode ser considerada confiável.
 
-Persistir primeiro permite:
+A estratégia adotada é:
 
 ```text
 salvar trabalho
@@ -1017,52 +1133,37 @@ em vez de:
 
 ```text
 sem internet
-→ usuário bloqueado
+→ bloquear usuário
 ```
 
 ---
 
 ## Por que `clientId`?
 
-Para permitir que a mesma inspeção possa ser reenviada sem que cada tentativa represente conceitualmente uma nova inspeção.
+O identificador local permite que a mesma inspeção seja reenviada sem que cada tentativa represente conceitualmente uma nova inspeção.
 
-Isso é especialmente importante em cenários com timeout, perda de conexão ou retry.
+Isso é importante em cenários com:
+
+* timeout;
+* perda de conexão;
+* retries;
+* encerramento inesperado do aplicativo.
 
 ---
 
-## Por que `connectivity_plus` não decide se a API está online?
+## Por que `connectivity_plus` não determina se a API está online?
 
-Porque uma conexão Wi-Fi ou móvel não garante acesso ao servidor.
+Ter Wi-Fi ou dados móveis disponíveis não significa necessariamente possuir acesso ao servidor.
 
-Por isso, o estado de conectividade é utilizado apenas como gatilho para uma nova tentativa.
+Por isso, `connectivity_plus` é utilizado como gatilho para uma tentativa.
 
 A resposta HTTP continua sendo a fonte de verdade.
 
 ---
 
-# Possíveis evoluções
-
-Com mais tempo, algumas evoluções possíveis seriam:
-
-* maior cobertura de testes;
-* integration tests completos;
-* CI com GitHub Actions;
-* banco relacional com Drift/SQLite para cenários mais complexos;
-* política de retry com backoff;
-* telemetria e observabilidade;
-* compressão/configuração avançada de imagens;
-* melhor gerenciamento de conflitos de sincronização;
-* paginação de ordens de serviço;
-* abstração de configuração por ambiente;
-* internacionalização;
-* acessibilidade automatizada;
-* testes Golden para componentes visuais.
-
----
-
 # Validação final
 
-Antes da entrega, podem ser executados:
+Antes da entrega:
 
 ```bash
 dart format lib test
@@ -1070,7 +1171,7 @@ flutter analyze
 flutter test
 ```
 
-E então validar manualmente o fluxo:
+Fluxo principal esperado:
 
 ```text
 Login
