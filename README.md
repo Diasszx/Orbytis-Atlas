@@ -1,6 +1,6 @@
 # Orbytis Atlas
 
-![Capa do Projeto](https://i.imgur.com/p3jt4Gp.png)
+![Capa do Projeto]([https://i.imgur.com/p3jt4Gp.png](https://imgur.com/f8JGy3W))
 
 Aplicativo mobile desenvolvido em Flutter para gerenciamento de **Ordens de Serviço e Inspeções em campo**, com suporte a operação offline, persistência local e sincronização automática com uma API.
 
