@@ -32,8 +32,7 @@
 
 Tenha instalado:
 
-* Flutter;
-* Dart;
+* Flutter com Dart compatível com `^3.13.2`, conforme o `pubspec.yaml`;
 * Android SDK;
 * Node.js;
 * dispositivo Android físico ou emulador.
@@ -102,6 +101,8 @@ Para acessar a API executada na máquina host, utilize:
 http://10.0.2.2:3000
 ```
 
+Altere `AppConfig.apiBaseUrl` em `lib/core/config/app_config.dart` para esse endereço antes de executar. O valor atual do projeto é `http://localhost:3000`; a seleção de URL não é automática.
+
 Depois execute:
 
 ```bash
@@ -129,6 +130,8 @@ Nesse cenário, o aplicativo pode acessar:
 ```text
 http://localhost:3000
 ```
+
+Mantenha (ou restaure) esse valor em `AppConfig.apiBaseUrl`, em `lib/core/config/app_config.dart`.
 
 Depois:
 
@@ -318,6 +321,8 @@ Dessa forma, as camadas internas não precisam conhecer como suas dependências 
 
 Foi utilizado `flutter_bloc`.
 
+Os formulários, autenticação e listagens usam BLoCs. A sincronização geral acionada na lista de OS usa o `InspectionQueueCubit`, responsável pelo estado de carregamento, bloqueio de cliques repetidos e mensagem de resultado.
+
 Fluxo:
 
 ```text
@@ -375,7 +380,7 @@ Inspeção sincronizada com sucesso.
 
 ### `failed`
 
-Inspeção rejeitada pelo servidor por um erro que exige atenção ou nova tentativa manual.
+Inspeção rejeitada pelo servidor ou com dados inválidos detectados durante o envio, exigindo atenção ou nova tentativa manual.
 
 ---
 
@@ -392,7 +397,9 @@ persistência no Hive
  ↓
 status = pending
  ↓
-tentativa de sincronização
+retorno à lista de OS
+ ↓
+botão Sincronizar
 ```
 
 A persistência acontece **antes da requisição HTTP**.
@@ -446,7 +453,7 @@ pending
  ↓
 POST /inspections
  ↓
-HTTP 4xx
+HTTP 4xx (exceto 401)
  ↓
 failed
  ↓
@@ -454,6 +461,8 @@ syncError persistido
 ```
 
 O estado `failed` é diferente de uma indisponibilidade temporária de rede.
+
+O HTTP `401` invalida a sessão e interrompe o envio sem marcar a inspeção como `failed` por rejeição de dados. Erros de conexão, timeout e respostas HTTP `5xx` mantêm a inspeção em `pending`.
 
 ---
 
@@ -483,9 +492,23 @@ Ele não é utilizado como fonte definitiva para afirmar que a API está acessí
 
 A própria requisição HTTP continua sendo a fonte de verdade.
 
+### Gatilhos simultâneos e controle de concorrência
+
+O `InspectionSyncCoordinator` mantém apenas uma execução automática da fila por vez. O primeiro gatilho inicia a tentativa imediatamente, sem debounce temporal. Se inicialização, retorno da conectividade ou retorno ao foreground ocorrerem durante essa execução, os novos gatilhos são agrupados em uma solicitação de nova passagem, executada após a atual terminar, inclusive se ela terminar com erro.
+
+Cada passagem percorre sequencialmente as inspeções `pending` e interrompe o processamento quando um envio continua `pending`. Uma falha, sozinha, não agenda outra passagem: é necessário um novo gatilho. Gatilhos recebidos durante a passagem seguinte podem solicitar mais uma passagem. Ao parar o coordenador, a solicitação pendente é descartada; o envio em andamento pode terminar.
+
+No `InspectionsRepository`, chamadas simultâneas de `syncInspection()` com o mesmo `clientId` compartilham o mesmo `Future`, incluindo a requisição HTTP e a persistência do resultado. Essa proteção vale tanto para a fila automática quanto para o envio manual. Ela é liberada após sucesso ou erro, permitindo tentativas posteriores. Inspeções diferentes não ficam bloqueadas entre si.
+
+Esses controles ficam em memória e valem por instância; o app cria um único coordenador e compartilha o repositório. As inspeções e seus estados continuam persistidos no Hive, mas os controles não sobrevivem ao encerramento do processo. Evitar duplicidade no servidor após timeout ou encerramento entre o envio e a gravação local ainda depende de idempotência no backend usando o `clientId`.
+
 ---
 
-## Retry manual
+## Sincronização manual geral e retry
+
+Na lista de **Ordens de serviço**, o botão **Sincronizar** envia as inspeções `pending` de todas as OS. Ele fica desabilitado e mostra **Sincronizando...** durante a operação. Ao terminar, uma mensagem informa quantas foram sincronizadas, quantas continuam pendentes e quantas falharam; os detalhes ficam no histórico. Se não houver pendências, isso também é informado.
+
+Concluir uma inspeção valida e salva os dados localmente, depois retorna à lista de OS. A conclusão não dispara uma requisição de sync nem abre uma tela intermediária de envio. O usuário pode continuar trabalhando e tocar em **Sincronizar** quando desejar. Os gatilhos automáticos de conectividade, inicialização e retorno ao foreground continuam ativos.
 
 Inspeções em `pending` participam do fluxo automático.
 
@@ -567,12 +590,23 @@ O Orbytis Atlas permite que um técnico de campo:
 * conclua inspeções offline;
 * acompanhe o estado de sincronização;
 * sincronize automaticamente os dados quando a conexão estiver disponível;
+* envie as pendências de todas as OS pelo botão **Sincronizar**;
 * consulte o histórico de inspeções;
 * tente novamente sincronizações rejeitadas pelo servidor.
 
 ---
 
 # Identidade visual
+
+## Tela de abertura
+
+Ao iniciar o app, o `StartupApp` exibe a imagem `assets/images/hover_atlas.png`, centralizada sobre fundo preto e com a proporção preservada, sem cortes. A imagem está incluída no aplicativo e não depende de conexão.
+
+A abertura aguarda a inicialização do armazenamento local e das dependências, com duração mínima de 1,2 segundo. Depois, o fluxo de autenticação direciona para o login ou para a lista de OS conforme a sessão. Se a inicialização falhar, uma mensagem orienta fechar e abrir o app novamente.
+
+Essa tela é renderizada pelo Flutter; a tela nativa anterior ao primeiro frame segue o comportamento do Android, com os fundos de lançamento configurados em preto. Para conferir a abertura completa após alterações, encerre e execute o app novamente.
+
+## Referências visuais
 
 A identidade visual do **Orbytis Atlas** foi desenvolvida tomando como referência a própria identidade pública da **Orbytis**, buscando manter coerência entre o aplicativo criado para o desafio e a linguagem visual utilizada pela marca.
 
@@ -633,6 +667,12 @@ O objetivo foi evitar uma interface genérica de desafio técnico e aproximar o 
 
 # Autenticação
 
+### Logout e proteção de rotas
+
+Na lista de OS, a ação **Sair** abre uma confirmação. Ao confirmar, o app remove o token do armazenamento seguro e atualiza o estado de autenticação, retornando ao login.
+
+O `GoRouter` possui um `redirect` que permite as rotas internas apenas no estado `AuthAuthenticated`. Na inicialização, a sessão é verificada pela presença de um token não vazio no armazenamento seguro. Sem sessão, inclusive ao tentar abrir diretamente uma rota interna, o destino é `/login`. Mudanças de autenticação atualizam o router; respostas HTTP 401 invalidam a sessão. A presença local do token não valida sua expiração antecipadamente.
+
 A autenticação utiliza JWT.
 
 Fluxo:
@@ -686,6 +726,10 @@ Assim, uma requisição que retorna `401` não é silenciosamente substituída p
 ---
 
 # Ordens de Serviço
+
+### Pull-to-refresh e estados da lista
+
+A lista permite **puxar para baixo para atualizar**, inclusive quando está vazia ou possui poucos itens. A ação consulta novamente o repositório e termina ao apresentar dados, estado vazio ou erro. Há indicador de carregamento e botão **Tentar novamente** nas falhas. Em falhas de conexão, o repositório pode apresentar os dados locais previamente carregados.
 
 As ordens são obtidas através da API e persistidas localmente.
 
@@ -776,10 +820,10 @@ Isso reduz operações excessivas de escrita durante a digitação.
 Também existe a ação:
 
 ```text
-Salvar e sair
+Salvar rascunho
 ```
 
-para garantir a persistência antes de deixar a inspeção.
+para salvar explicitamente o rascunho e continuar editando. Esse botão complementa o autosave e não exige os dados obrigatórios de uma conclusão. **Salvar e sair** persiste e retorna à tela anterior. **Concluir inspeção** é uma ação separada, que valida os campos, altera o status para `pending` e retorna à lista de OS.
 
 ---
 
@@ -862,6 +906,8 @@ Filtros:
 
 Inspeções em estado `failed` permitem uma nova tentativa manual.
 
+O histórico recarrega os dados ao abrir a tela, trocar o filtro, puxar para atualizar uma lista não vazia ou terminar um retry manual. Ele não observa automaticamente as gravações do sync em segundo plano; se já estiver aberto, atualize a lista para consultar os novos estados.
+
 ---
 
 # Persistência local
@@ -931,6 +977,8 @@ flutter test
 ---
 
 ## `InspectionsRepository`
+
+Os testes de concorrência verificam que envio automático e manual compartilham uma única operação até a persistência local terminar, e que uma exceção libera a operação para uma tentativa posterior.
 
 Entre os cenários validados:
 
@@ -1016,6 +1064,10 @@ detalhes offline
 
 Os testes de widget validam componentes e representações importantes da interface, incluindo estados relacionados à sincronização.
 
+Também são verificados o retorno à lista de OS após concluir sem iniciar upload, o término do pull-to-refresh com lista vazia inalterada e o acesso ao botão geral **Sincronizar**. Os testes do `InspectionQueueCubit` cobrem sucesso, ausência de pendências, falha de conexão, rejeição do servidor e bloqueio de cliques repetidos durante o envio.
+
+Os testes do `InspectionSyncCoordinator` cobrem gatilhos simultâneos, passagem adicional após erro, parada do coordenador e ausência de retries sem novos gatilhos.
+
 ---
 
 # Testando manualmente o fluxo offline → online
@@ -1044,7 +1096,7 @@ adb reverse --remove tcp:3000
 10. registre uma foto;
 11. registre a localização;
 12. conclua a inspeção;
-13. confirme que ela permanece em `pending`;
+13. confirme o retorno à lista de OS e consulte no histórico se ela permanece em `pending`;
 14. restaure o acesso à API:
 
 ```bash
@@ -1056,6 +1108,19 @@ adb reverse tcp:3000 tcp:3000
 17. verifique o estado `synced` no histórico.
 
 Esse fluxo valida manualmente o principal cenário offline-first proposto pelo desafio.
+
+Restaurar o `adb reverse` não gera, por si só, um evento de conectividade no Android. Para testar o gatilho automático nesse cenário, coloque o app em segundo plano e retorne ao foreground.
+
+## Testando o botão Sincronizar
+
+1. Com a API inacessível, conclua uma inspeção e confirme o retorno à lista de OS.
+2. Toque em **Sincronizar** e confirme que a mensagem informa a pendência, sem indicar sucesso para esse item.
+3. Restaure o acesso à API pelo terminal, mantendo o app aberto na lista de OS, sem alternar seu estado de foreground.
+4. Toque em **Sincronizar** e confira o estado **Sincronizando...**, seguido do resumo do resultado.
+5. Abra o histórico e confirme o estado `synced`.
+6. Sem novas pendências, toque em **Sincronizar** novamente e confira a mensagem de ausência de inspeções pendentes.
+
+Se um gatilho automático já tiver enviado a inspeção antes do clique, a ausência de pendências é o resultado esperado. Itens `failed` são reenviados pela ação **Tentar novamente** no histórico.
 
 ---
 
@@ -1174,6 +1239,8 @@ flutter test
 Fluxo principal esperado:
 
 ```text
+Tela de abertura
+ ↓
 Login
  ↓
 Ordens de Serviço
@@ -1190,7 +1257,9 @@ Conclusão
  ↓
 Pending
  ↓
-Sincronização
+Retorno à lista de OS
+ ↓
+Sincronizar (ou gatilho automático)
  ↓
 Synced
  ↓
