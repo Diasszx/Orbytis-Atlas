@@ -40,7 +40,7 @@ Future<void> main() async {
   final inspectionPhotoService = InspectionPhotoServiceImpl();
   const inspectionLocationService = InspectionLocationServiceImpl();
 
-  final workOrdersLocalDataSource = WorkOrdersLocalDataSource(
+  final workOrdersLocalDataSource = WorkOrdersLocalDataSourceImpl(
     box: workOrdersBox,
   );
 
@@ -78,7 +78,7 @@ Future<void> main() async {
   final authBloc = AuthBloc(authRepository, sessionExpiredNotifier);
   authBloc.add(const AuthSessionChecked());
 
-  final workOrdersRemoteDataSource = WorkOrdersRemoteDataSource(
+  final workOrdersRemoteDataSource = WorkOrdersRemoteDataSourceImpl(
     dioClient: dioClient,
   );
 
