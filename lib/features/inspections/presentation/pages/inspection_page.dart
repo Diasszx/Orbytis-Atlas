@@ -4,11 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:orbytis_atlas/features/inspections/models/inspection.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/forms/inspection_bloc.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/forms/inspection_state.dart';
+import 'package:orbytis_atlas/features/inspections/presentation/bloc/sync/inspection_sync_bloc.dart';
+import 'package:orbytis_atlas/features/inspections/presentation/bloc/sync/inspection_sync_event.dart';
+import 'package:orbytis_atlas/features/inspections/presentation/bloc/sync/inspection_sync_state.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/widgets/orbytis_header.dart';
 import '../widgets/inspection_form.dart';
-import '../widgets/inspection_sync_button.dart';
 
 final class InspectionPage extends StatefulWidget {
   const InspectionPage({super.key});
@@ -57,6 +59,14 @@ final class _InspectionPageState extends State<InspectionPage> {
                     listener: (context, state) {
                       if (state is InspectionSaveAndExitSuccess) {
                         _showSaveSuccess();
+                      }
+
+                      if (state case InspectionConclusionSuccess(
+                        :final inspection,
+                      )) {
+                        context.read<InspectionSyncBloc>().add(
+                          InspectionSyncRequested(inspection.clientId),
+                        );
                       }
 
                     },
@@ -164,21 +174,89 @@ final class _InspectionCompletedView extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Os dados foram salvos no dispositivo e estão aguardando sincronização.',
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyLarge,
+          const SizedBox(height: 16),
+          BlocBuilder<InspectionSyncBloc, InspectionSyncState>(
+            builder: (context, state) {
+              return switch (state) {
+                InspectionSyncLoading() => const _SyncStatus(
+                  icon: Icons.sync,
+                  title: 'Sincronizando...',
+                  message: 'Enviando a inspeção para o servidor.',
+                  isLoading: true,
+                ),
+                InspectionSyncSuccess() => const _SyncStatus(
+                  icon: Icons.cloud_done_outlined,
+                  title: 'Sincronizado',
+                  message: 'A inspeção foi enviada com sucesso.',
+                ),
+                InspectionSyncPending(:final message) => _SyncStatus(
+                  icon: Icons.cloud_queue_outlined,
+                  title: 'Aguardando conexão',
+                  message: '$message\n\nA inspeção está salva neste dispositivo '
+                      'e será sincronizada automaticamente.',
+                ),
+                InspectionSyncFailure(:final message) => _SyncStatus(
+                  icon: Icons.error_outline,
+                  title: 'Sincronização pendente de atenção',
+                  message: message,
+                ),
+                InspectionSyncInitial() => const _SyncStatus(
+                  icon: Icons.cloud_queue_outlined,
+                  title: 'Aguardando sincronização',
+                  message: 'A inspeção foi salva neste dispositivo.',
+                ),
+              };
+            },
           ),
-          const SizedBox(height: 32),
-          InspectionSyncButton(clientId: inspection.clientId),
           const SizedBox(height: 12),
           TextButton(
             onPressed: context.pop,
-            child: const Text('Sincronizar depois'),
+            child: const Text('Continuar trabalhando'),
           ),
         ],
       ),
+    );
+  }
+}
+
+final class _SyncStatus extends StatelessWidget {
+  const _SyncStatus({
+    required this.icon,
+    required this.title,
+    required this.message,
+    this.isLoading = false,
+  });
+
+  final IconData icon;
+  final String title;
+  final String message;
+  final bool isLoading;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Column(
+      children: [
+        if (isLoading)
+          const SizedBox(
+            width: 32,
+            height: 32,
+            child: CircularProgressIndicator(strokeWidth: 3),
+          )
+        else
+          Icon(icon, size: 32, color: theme.colorScheme.primary),
+        const SizedBox(height: 12),
+        Text(
+          title,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(message, textAlign: TextAlign.center, style: theme.textTheme.bodyLarge),
+      ],
     );
   }
 }
