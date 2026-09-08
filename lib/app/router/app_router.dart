@@ -5,6 +5,7 @@ import 'package:orbytis_atlas/features/auth/presentation/bloc/auth_state.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/forms/inspection_bloc.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/forms/inspection_event.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/inspection_start_bloc.dart';
+import 'package:orbytis_atlas/features/inspections/presentation/bloc/sync/inspection_sync_bloc.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/pages/inspection_page.dart';
 import 'package:orbytis_atlas/features/inspections/repositories/inspections_repository.dart';
 import 'package:orbytis_atlas/features/work_orders/presentation/bloc/work_order_details_bloc.dart';
@@ -81,12 +82,19 @@ final class AppRouter {
 
                return slideTransitionPage(
                  state: state,
-                 child: BlocProvider(
-                   create: (_) =>
-                       InspectionBloc(inspectionsRepository)
-                         ..add(InspectionRequested(clientId)),
-                   child: const InspectionPage(),
-                 ),
+                child: MultiBlocProvider(
+                  providers: [
+                    BlocProvider(
+                      create: (_) =>
+                          InspectionBloc(inspectionsRepository)
+                            ..add(InspectionRequested(clientId)),
+                    ),
+                    BlocProvider(
+                      create: (_) => InspectionSyncBloc(inspectionsRepository),
+                    ),
+                  ],
+                  child: const InspectionPage(),
+                ),
                );
              },
            ),

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:orbytis_atlas/features/inspections/models/inspection.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/forms/inspection_bloc.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/forms/inspection_state.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/widgets/orbytis_header.dart';
 import '../widgets/inspection_form.dart';
+import '../widgets/inspection_sync_button.dart';
 
 final class InspectionPage extends StatefulWidget {
   const InspectionPage({super.key});
@@ -57,16 +59,6 @@ final class _InspectionPageState extends State<InspectionPage> {
                         _showSaveSuccess();
                       }
 
-                      if (state is InspectionConclusionSuccess) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Inspeção concluída e aguardando sincronização.',
-                            ),
-                          ),
-                        );
-                        context.pop();
-                      }
                     },
                     builder: (context, state) {
                       return switch (state) {
@@ -123,10 +115,7 @@ final class _InspectionPageState extends State<InspectionPage> {
                             errorMessage: message,
                           ),
                         InspectionConclusionSuccess(:final inspection) =>
-                          InspectionForm(
-                            inspection: inspection,
-                            saveStatus: InspectionSaveStatus.saved,
-                          ),
+                          _InspectionCompletedView(inspection: inspection),
                         InspectionFailure(:final message) => Center(
                           child: Padding(
                             padding: const EdgeInsets.all(24),
@@ -143,6 +132,52 @@ final class _InspectionPageState extends State<InspectionPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+final class _InspectionCompletedView extends StatelessWidget {
+  const _InspectionCompletedView({required this.inspection});
+
+  final Inspection inspection;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.check_circle_outline,
+            size: 72,
+            color: theme.colorScheme.primary,
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'Inspeção concluída',
+            textAlign: TextAlign.center,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Os dados foram salvos no dispositivo e estão aguardando sincronização.',
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyLarge,
+          ),
+          const SizedBox(height: 32),
+          InspectionSyncButton(clientId: inspection.clientId),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: context.pop,
+            child: const Text('Sincronizar depois'),
+          ),
+        ],
       ),
     );
   }
