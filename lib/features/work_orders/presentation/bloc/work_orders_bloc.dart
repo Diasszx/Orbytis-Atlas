@@ -26,6 +26,7 @@ final class WorkOrdersBloc extends Bloc<WorkOrdersEvent, WorkOrdersState> {
     WorkOrdersRefreshed event,
     Emitter<WorkOrdersState> emit,
   ) async {
+    emit(const WorkOrdersLoading());
     await _loadWorkOrders(status: event.status, emit: emit);
   }
 

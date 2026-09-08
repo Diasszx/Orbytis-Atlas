@@ -6,6 +6,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/widgets/orbytis_header.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
+import '../../../inspections/presentation/bloc/sync/inspection_queue_cubit.dart';
 import '../bloc/work_orders_bloc.dart';
 import '../bloc/work_orders_event.dart';
 import '../bloc/work_orders_state.dart';
@@ -131,40 +132,93 @@ final class _WorkOrdersPageState extends State<WorkOrdersPage> {
                     ),
                   ),
                   clipBehavior: Clip.antiAlias,
-                  child: BlocBuilder<WorkOrdersBloc, WorkOrdersState>(
-                    builder: (context, state) {
-                      return switch (state) {
-                        WorkOrdersInitial() || WorkOrdersLoading() =>
-                          const Center(child: CircularProgressIndicator()),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                        child:
+                            BlocConsumer<
+                              InspectionQueueCubit,
+                              InspectionQueueState
+                            >(
+                              listener: (context, state) {
+                                if (state.message case final String message) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(message)),
+                                  );
+                                }
+                              },
+                              builder: (context, state) => SizedBox(
+                                width: double.infinity,
+                                child: FilledButton.icon(
+                                  onPressed: state.isSyncing
+                                      ? null
+                                      : () => context
+                                            .read<InspectionQueueCubit>()
+                                            .synchronize(),
+                                  icon: state.isSyncing
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : const Icon(Icons.sync),
+                                  label: Text(
+                                    state.isSyncing
+                                        ? 'Sincronizando...'
+                                        : 'Sincronizar',
+                                  ),
+                                ),
+                              ),
+                            ),
+                      ),
+                      Expanded(
+                        child: BlocBuilder<WorkOrdersBloc, WorkOrdersState>(
+                          builder: (context, state) {
+                            return switch (state) {
+                              WorkOrdersInitial() ||
+                              WorkOrdersLoading() => const Center(
+                                child: CircularProgressIndicator(),
+                              ),
 
-                        WorkOrdersEmpty() => _EmptyState(onRefresh: _refresh),
+                              WorkOrdersEmpty() => _EmptyState(
+                                onRefresh: _refresh,
+                              ),
 
-                        WorkOrdersFailure(:final message) => _FailureState(
-                          message: message,
-                          onRetry: () {
-                            context.read<WorkOrdersBloc>().add(
-                              const WorkOrdersRequested(),
-                            );
+                              WorkOrdersFailure(:final message) =>
+                                _FailureState(
+                                  message: message,
+                                  onRetry: () {
+                                    context.read<WorkOrdersBloc>().add(
+                                      const WorkOrdersRequested(),
+                                    );
+                                  },
+                                ),
+
+                              WorkOrdersLoaded(:final workOrders) =>
+                                RefreshIndicator(
+                                  onRefresh: _refresh,
+                                  child: ListView.separated(
+                                    padding: const EdgeInsets.all(16),
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(),
+                                    itemCount: workOrders.length,
+                                    separatorBuilder: (_, _) =>
+                                        const SizedBox(height: 12),
+                                    itemBuilder: (context, index) {
+                                      return WorkOrderCard(
+                                        workOrder: workOrders[index],
+                                      );
+                                    },
+                                  ),
+                                ),
+                            };
                           },
                         ),
-
-                        WorkOrdersLoaded(:final workOrders) => RefreshIndicator(
-                          onRefresh: _refresh,
-                          child: ListView.separated(
-                            padding: const EdgeInsets.all(16),
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            itemCount: workOrders.length,
-                            separatorBuilder: (_, _) =>
-                                const SizedBox(height: 12),
-                            itemBuilder: (context, index) {
-                              return WorkOrderCard(
-                                workOrder: workOrders[index],
-                              );
-                            },
-                          ),
-                        ),
-                      };
-                    },
+                      ),
+                    ],
                   ),
                 ),
               ),

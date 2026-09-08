@@ -126,8 +126,8 @@ final class InspectionForm extends StatelessWidget {
           onPressed: isBusy
               ? null
               : () => context.read<InspectionBloc>().add(
-                    const InspectionPhotoRequested(),
-                  ),
+                  const InspectionPhotoRequested(),
+                ),
           icon: const Icon(Icons.camera_alt_outlined),
           label: Text(
             inspection.photoPath == null
@@ -185,8 +185,8 @@ final class InspectionForm extends StatelessWidget {
           onPressed: isBusy
               ? null
               : () => context.read<InspectionBloc>().add(
-                    const InspectionLocationRequested(),
-                  ),
+                  const InspectionLocationRequested(),
+                ),
           icon: isGettingLocation
               ? const SizedBox(
                   width: 20,
@@ -227,7 +227,7 @@ final class InspectionForm extends StatelessWidget {
             onPressed: isBusy
                 ? null
                 : () => context.read<InspectionBloc>().add(
-                    const InspectionSaveAndExitRequested(),
+                    const InspectionDraftSaved(),
                   ),
             icon: isPersisting
                 ? const SizedBox(
@@ -236,7 +236,7 @@ final class InspectionForm extends StatelessWidget {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.save_outlined),
-            label: Text(isPersisting ? 'Salvando...' : 'Salvar e sair'),
+            label: Text(isPersisting ? 'Salvando...' : 'Salvar rascunho'),
           ),
         ),
         const SizedBox(height: 12),
@@ -249,10 +249,16 @@ final class InspectionForm extends StatelessWidget {
                     const InspectionConclusionRequested(),
                   ),
             icon: const Icon(Icons.check_circle_outline),
-            label: Text(
-              isConcluding ? 'Concluindo...' : 'Concluir inspeção',
-            ),
+            label: Text(isConcluding ? 'Concluindo...' : 'Concluir inspeção'),
           ),
+        ),
+        TextButton(
+          onPressed: isBusy
+              ? null
+              : () => context.read<InspectionBloc>().add(
+                  const InspectionSaveAndExitRequested(),
+                ),
+          child: const Text('Salvar e sair'),
         ),
       ],
     );

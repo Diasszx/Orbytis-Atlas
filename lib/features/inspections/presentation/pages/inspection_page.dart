@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:orbytis_atlas/features/inspections/models/inspection.dart';
-import 'package:orbytis_atlas/features/inspections/models/inspection_sync_status.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/forms/inspection_bloc.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/forms/inspection_state.dart';
-import 'package:orbytis_atlas/features/inspections/presentation/bloc/sync/inspection_sync_bloc.dart';
-import 'package:orbytis_atlas/features/inspections/presentation/bloc/sync/inspection_sync_event.dart';
-import 'package:orbytis_atlas/features/inspections/presentation/bloc/sync/inspection_sync_state.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/widgets/orbytis_header.dart';
 import '../widgets/inspection_form.dart';
-import '../widgets/inspection_sync_status.dart';
 
 final class InspectionPage extends StatefulWidget {
   const InspectionPage({super.key});
@@ -63,14 +57,16 @@ final class _InspectionPageState extends State<InspectionPage> {
                         _showSaveSuccess();
                       }
 
-                      if (state case InspectionConclusionSuccess(
-                        :final inspection,
-                      )) {
-                        context.read<InspectionSyncBloc>().add(
-                          InspectionSyncRequested(inspection.clientId),
+                      if (state is InspectionConclusionSuccess) {
+                        context.go('/work-orders');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Inspeção salva. Toque em Sincronizar para enviar as pendências.',
+                            ),
+                          ),
                         );
                       }
-
                     },
                     builder: (context, state) {
                       return switch (state) {
@@ -126,8 +122,8 @@ final class _InspectionPageState extends State<InspectionPage> {
                             saveStatus: InspectionSaveStatus.error,
                             errorMessage: message,
                           ),
-                        InspectionConclusionSuccess(:final inspection) =>
-                          _InspectionCompletedView(inspection: inspection),
+                        InspectionConclusionSuccess() =>
+                          const SizedBox.shrink(),
                         InspectionFailure(:final message) => Center(
                           child: Padding(
                             padding: const EdgeInsets.all(24),
@@ -145,88 +141,6 @@ final class _InspectionPageState extends State<InspectionPage> {
           ),
         ),
       ),
-    );
-  }
-}
-
-final class _InspectionCompletedView extends StatelessWidget {
-  const _InspectionCompletedView({required this.inspection});
-
-  final Inspection inspection;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.check_circle_outline,
-            size: 72,
-            color: theme.colorScheme.primary,
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'Inspeção concluída',
-            textAlign: TextAlign.center,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 16),
-          BlocBuilder<InspectionSyncBloc, InspectionSyncState>(
-            builder: (context, state) {
-              return switch (state) {
-                InspectionSyncInitial() => InspectionSyncStatusView(
-                  status: inspection.syncStatus,
-                  message: inspection.syncError,
-                ),
-                InspectionSyncLoading() => const _SyncingStatus(),
-                InspectionSyncSuccess(:final inspection) =>
-                  InspectionSyncStatusView(status: inspection.syncStatus),
-                InspectionSyncPending(:final inspection, :final message) =>
-                  InspectionSyncStatusView(
-                    status: inspection.syncStatus,
-                    message: message,
-                  ),
-                InspectionSyncFailure(:final inspection, :final message) =>
-                  InspectionSyncStatusView(
-                    status: inspection?.syncStatus ?? InspectionSyncStatus.failed,
-                    message: message,
-                  ),
-              };
-            },
-          ),
-          const SizedBox(height: 12),
-          TextButton(
-            onPressed: context.pop,
-            child: const Text('Continuar trabalhando'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-final class _SyncingStatus extends StatelessWidget {
-  const _SyncingStatus();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
-        SizedBox(width: 12),
-        Text('Sincronizando...'),
-      ],
     );
   }
 }

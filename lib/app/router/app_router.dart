@@ -7,7 +7,7 @@ import 'package:orbytis_atlas/features/inspections/presentation/bloc/forms/inspe
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/history/inspection_history_bloc.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/history/inspection_history_event.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/inspection_start_bloc.dart';
-import 'package:orbytis_atlas/features/inspections/presentation/bloc/sync/inspection_sync_bloc.dart';
+import 'package:orbytis_atlas/features/inspections/presentation/bloc/sync/inspection_queue_cubit.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/pages/inspection_history_page.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/pages/inspection_page.dart';
 import 'package:orbytis_atlas/features/inspections/repositories/inspections_repository.dart';
@@ -39,7 +39,7 @@ final class AppRouter {
            }
 
            if (isAuthenticated && isGoingToLogin) {
-             return 'work-orders';
+             return '/work-orders';
            }
 
            return null;
@@ -52,7 +52,10 @@ final class AppRouter {
            ),
            GoRoute(
              path: '/work-orders',
-             builder: (context, state) => const WorkOrdersPage(),
+             builder: (context, state) => BlocProvider(
+               create: (_) => InspectionQueueCubit(inspectionsRepository),
+               child: const WorkOrdersPage(),
+             ),
            ),
            GoRoute(
              path: '/work-orders/:id',
@@ -99,19 +102,16 @@ final class AppRouter {
 
                return slideTransitionPage(
                  state: state,
-                child: MultiBlocProvider(
-                  providers: [
-                    BlocProvider(
-                      create: (_) =>
-                          InspectionBloc(inspectionsRepository)
-                            ..add(InspectionRequested(clientId)),
-                    ),
-                    BlocProvider(
-                      create: (_) => InspectionSyncBloc(inspectionsRepository),
-                    ),
-                  ],
-                  child: const InspectionPage(),
-                ),
+                 child: MultiBlocProvider(
+                   providers: [
+                     BlocProvider(
+                       create: (_) =>
+                           InspectionBloc(inspectionsRepository)
+                             ..add(InspectionRequested(clientId)),
+                     ),
+                   ],
+                   child: const InspectionPage(),
+                 ),
                );
              },
            ),
