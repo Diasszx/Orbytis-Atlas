@@ -1,6 +1,8 @@
 import 'package:uuid/uuid.dart';
 
+import '../../../core/errors/network_exception.dart';
 import '../datasources/inspections_local_data_source.dart';
+import '../datasources/inspections_remote_data_source.dart';
 import '../errors/inspections_exception.dart';
 import '../models/inspection.dart';
 import '../models/inspection_sync_status.dart';
@@ -10,15 +12,18 @@ import '../services/inspection_location_service.dart';
 final class InspectionsRepository {
   InspectionsRepository({
     required InspectionsLocalDataSource localDataSource,
+    required InspectionsRemoteDataSource remoteDataSource,
     required InspectionPhotoService photoService,
     required InspectionLocationService locationService,
     Uuid? uuid,
   }) : _localDataSource = localDataSource,
+       _remoteDataSource = remoteDataSource,
        _photoService = photoService,
        _locationService = locationService,
        _uuid = uuid ?? const Uuid();
 
   final InspectionsLocalDataSource _localDataSource;
+  final InspectionsRemoteDataSource _remoteDataSource;
   final InspectionPhotoService _photoService;
   final InspectionLocationService _locationService;
   final Uuid _uuid;
@@ -158,6 +163,102 @@ final class InspectionsRepository {
     } catch (_) {
       throw const InspectionsException('Não foi possível concluir a inspeção.');
     }
+  }
+
+  Future<Inspection> syncInspection(String clientId) async {
+    final inspection = _localDataSource.getInspectionByClientId(clientId);
+
+    if (inspection == null) {
+      throw const InspectionsException('Inspeção não encontrada.');
+    }
+
+    if (inspection.syncStatus == InspectionSyncStatus.draft) {
+      throw const InspectionsException('Rascunhos não podem ser sincronizados.');
+    }
+
+    if (inspection.syncStatus == InspectionSyncStatus.synced) {
+      return inspection;
+    }
+
+    try {
+      final serverId = await _remoteDataSource.submitInspection(inspection);
+      final syncedInspection = inspection.copyWith(
+        serverId: serverId,
+        syncStatus: InspectionSyncStatus.synced,
+        clearSyncError: true,
+        updatedAt: DateTime.now(),
+      );
+
+      await _localDataSource.saveInspection(syncedInspection);
+      return syncedInspection;
+    } on NetworkException catch (error) {
+      return _handleSyncNetworkError(inspection, error);
+    } on FormatException {
+      final failedInspection = inspection.copyWith(
+        syncStatus: InspectionSyncStatus.failed,
+        syncError: 'Os dados da inspeção são inválidos.',
+        updatedAt: DateTime.now(),
+      );
+
+      await _localDataSource.saveInspection(failedInspection);
+      return failedInspection;
+    }
+  }
+
+  Future<List<Inspection>> syncPendingInspections() async {
+    final inspections = _localDataSource.getPendingInspections();
+    final results = <Inspection>[];
+
+    for (final inspection in inspections) {
+      try {
+        results.add(await syncInspection(inspection.clientId));
+      } on InspectionsException {
+        rethrow;
+      }
+    }
+
+    return results;
+  }
+
+  Future<Inspection> _handleSyncNetworkError(
+    Inspection inspection,
+    NetworkException error,
+  ) async {
+    if (error.type == NetworkErrorType.unauthorized) {
+      throw const InspectionsException(
+        'Sua sessão expirou. Faça login novamente.',
+      );
+    }
+
+    final isRejectedByServer =
+        error.type == NetworkErrorType.badResponse &&
+        error.statusCode != null &&
+        error.statusCode! >= 400 &&
+        error.statusCode! < 500;
+    final updatedInspection = inspection.copyWith(
+      syncStatus: isRejectedByServer
+          ? InspectionSyncStatus.failed
+          : InspectionSyncStatus.pending,
+      syncError: _syncErrorMessage(error),
+      updatedAt: DateTime.now(),
+    );
+
+    await _localDataSource.saveInspection(updatedInspection);
+    return updatedInspection;
+  }
+
+  String _syncErrorMessage(NetworkException error) {
+    return switch (error.type) {
+      NetworkErrorType.timeout => 'A sincronização excedeu o tempo limite.',
+      NetworkErrorType.connection =>
+        'Sem conexão. A inspeção continuará aguardando sincronização.',
+      NetworkErrorType.badResponse => 'O servidor recusou os dados da inspeção.',
+      NetworkErrorType.cancelled => 'A sincronização foi cancelada.',
+      NetworkErrorType.badCertificate =>
+        'Não foi possível estabelecer uma conexão segura.',
+      NetworkErrorType.unauthorized => 'Sua sessão expirou.',
+      NetworkErrorType.unknown => 'Não foi possível sincronizar a inspeção.',
+    };
   }
 
   Inspection? getInspectionByClientId(String clientId) {

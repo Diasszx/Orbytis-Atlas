@@ -11,6 +11,7 @@ import 'package:orbytis_atlas/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:orbytis_atlas/features/auth/presentation/bloc/auth_event.dart';
 import 'package:orbytis_atlas/features/auth/repositories/auth_repository.dart';
 import 'package:orbytis_atlas/features/inspections/datasources/inspections_local_data_source.dart';
+import 'package:orbytis_atlas/features/inspections/datasources/inspections_remote_data_source.dart';
 
 import 'package:orbytis_atlas/features/inspections/repositories/inspections_repository.dart';
 import 'package:orbytis_atlas/features/inspections/services/inspection_photo_service.dart';
@@ -36,12 +37,6 @@ Future<void> main() async {
   final inspectionPhotoService = InspectionPhotoService();
   const inspectionLocationService = InspectionLocationService();
 
-  final inspectionsRepository = InspectionsRepository(
-    localDataSource: inspectionsLocalDataSource,
-    photoService: inspectionPhotoService,
-    locationService: inspectionLocationService,
-  );
-
   final workOrdersLocalDataSource = WorkOrdersLocalDataSource(
     box: workOrdersBox,
   );
@@ -53,6 +48,17 @@ Future<void> main() async {
   final dioClient = DioClient(
     secureStorageService: secureStorageService,
     sessionExpiredNotifier: sessionExpiredNotifier,
+  );
+
+  final inspectionsRemoteDataSource = InspectionsRemoteDataSource(
+    dioClient: dioClient,
+  );
+
+  final inspectionsRepository = InspectionsRepository(
+    localDataSource: inspectionsLocalDataSource,
+    remoteDataSource: inspectionsRemoteDataSource,
+    photoService: inspectionPhotoService,
+    locationService: inspectionLocationService,
   );
 
   final authRemoteDataSource = AuthRemoteDataSource(dioClient: dioClient);
