@@ -205,19 +205,16 @@ final class InspectionsRepository {
     }
   }
 
-  Future<List<Inspection>> syncPendingInspections() async {
-    final inspections = _localDataSource.getPendingInspections();
-    final results = <Inspection>[];
+  Future<void> syncPendingInspections() async {
+    final pendingInspections = _localDataSource.getPendingInspections();
 
-    for (final inspection in inspections) {
-      try {
-        results.add(await syncInspection(inspection.clientId));
-      } on InspectionsException {
-        rethrow;
+    for (final inspection in pendingInspections) {
+      final result = await syncInspection(inspection.clientId);
+
+      if (result.syncStatus == InspectionSyncStatus.pending) {
+        return;
       }
     }
-
-    return results;
   }
 
   Future<Inspection> _handleSyncNetworkError(

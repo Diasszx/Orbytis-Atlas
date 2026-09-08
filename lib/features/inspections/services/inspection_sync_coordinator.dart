@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/widgets.dart';
 
 import '../repositories/inspections_repository.dart';
 
-final class InspectionSyncCoordinator {
+final class InspectionSyncCoordinator with WidgetsBindingObserver {
   InspectionSyncCoordinator({
     required InspectionsRepository inspectionsRepository,
     Connectivity? connectivity,
@@ -15,27 +16,77 @@ final class InspectionSyncCoordinator {
   final Connectivity _connectivity;
   StreamSubscription<List<ConnectivityResult>>? _subscription;
 
-  void start() {
-    _subscription ??= _connectivity.onConnectivityChanged.listen((results) {
-      if (results.any((result) => result != ConnectivityResult.none)) {
-        _trySyncPendingInspections();
-      }
-    });
+  bool _started = false;
+  bool _isSyncing = false;
 
-    _trySyncPendingInspections();
+  Future<void> start() async {
+    if (_started) {
+      return;
+    }
+
+    _started = true;
+    WidgetsBinding.instance.addObserver(this);
+    _subscription = _connectivity.onConnectivityChanged.listen(
+      _onConnectivityChanged,
+    );
+
+    await _checkConnectivityAndSync();
   }
 
-  Future<void> _trySyncPendingInspections() async {
-    try {
-      await _inspectionsRepository.syncPendingInspections();
-    } catch (_) {
-      // A próxima alteração de rede realizará outra tentativa. A resposta HTTP
-      // continua sendo a fonte de verdade sobre a conectividade.
+  Future<void> stop() async {
+    if (!_started) {
+      return;
+    }
+
+    _started = false;
+    WidgetsBinding.instance.removeObserver(this);
+    await _subscription?.cancel();
+    _subscription = null;
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      unawaited(_checkConnectivityAndSync());
     }
   }
 
-  Future<void> dispose() async {
-    await _subscription?.cancel();
-    _subscription = null;
+  void _onConnectivityChanged(List<ConnectivityResult> results) {
+    if (_hasNetwork(results)) {
+      unawaited(_syncPendingInspections());
+    }
+  }
+
+  Future<void> _checkConnectivityAndSync() async {
+    try {
+      final results = await _connectivity.checkConnectivity();
+
+      if (_hasNetwork(results)) {
+        await _syncPendingInspections();
+      }
+    } catch (_) {
+      // Connectivity é apenas um gatilho; a requisição HTTP é a fonte de
+      // verdade sobre conectividade e erros são persistidos pelo Repository.
+    }
+  }
+
+  bool _hasNetwork(List<ConnectivityResult> results) {
+    return results.any((result) => result != ConnectivityResult.none);
+  }
+
+  Future<void> _syncPendingInspections() async {
+    if (_isSyncing) {
+      return;
+    }
+
+    _isSyncing = true;
+
+    try {
+      await _inspectionsRepository.syncPendingInspections();
+    } catch (_) {
+      // A próxima mudança de rede ou retomada do app fará outra tentativa.
+    } finally {
+      _isSyncing = false;
+    }
   }
 }
