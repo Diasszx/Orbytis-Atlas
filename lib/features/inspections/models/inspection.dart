@@ -84,6 +84,7 @@ final class Inspection {
     DateTime? capturedAt,
     InspectionSyncStatus? syncStatus,
     String? syncError,
+    bool clearSyncError = false,
     DateTime? updatedAt,
   }) {
     return Inspection(
@@ -97,7 +98,7 @@ final class Inspection {
       longitude: longitude ?? this.longitude,
       capturedAt: capturedAt ?? this.capturedAt,
       syncStatus: syncStatus ?? this.syncStatus,
-      syncError: syncError ?? this.syncError,
+      syncError: clearSyncError ? null : syncError ?? this.syncError,
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
