@@ -1,8 +1,13 @@
 import 'package:geolocator/geolocator.dart';
 
-final class InspectionLocationService {
-  const InspectionLocationService();
+abstract interface class InspectionLocationService {
+  Future<Position> getCurrentPosition();
+}
 
+final class InspectionLocationServiceImpl implements InspectionLocationService {
+  const InspectionLocationServiceImpl();
+
+  @override
   Future<Position> getCurrentPosition() async {
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
 

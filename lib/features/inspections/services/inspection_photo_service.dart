@@ -4,12 +4,17 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
-final class InspectionPhotoService {
-  InspectionPhotoService({ImagePicker? imagePicker})
+abstract interface class InspectionPhotoService {
+  Future<String?> capturePhoto({required String clientId});
+}
+
+final class InspectionPhotoServiceImpl implements InspectionPhotoService {
+  InspectionPhotoServiceImpl({ImagePicker? imagePicker})
     : _imagePicker = imagePicker ?? ImagePicker();
 
   final ImagePicker _imagePicker;
 
+  @override
   Future<String?> capturePhoto({required String clientId}) async {
     final photo = await _imagePicker.pickImage(
       source: ImageSource.camera,

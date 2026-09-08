@@ -4,12 +4,18 @@ import '../../../core/network/dio_client.dart';
 import '../../../core/network/dio_exception_mapper.dart';
 import '../models/inspection.dart';
 
-final class InspectionsRemoteDataSource {
-  InspectionsRemoteDataSource({required DioClient dioClient})
+abstract interface class InspectionsRemoteDataSource {
+  Future<String> submitInspection(Inspection inspection);
+}
+
+final class InspectionsRemoteDataSourceImpl
+    implements InspectionsRemoteDataSource {
+  InspectionsRemoteDataSourceImpl({required DioClient dioClient})
     : _dio = dioClient.dio;
 
   final Dio _dio;
 
+  @override
   Future<String> submitInspection(Inspection inspection) async {
     final photoPath = inspection.photoPath;
     final observation = inspection.observation;
