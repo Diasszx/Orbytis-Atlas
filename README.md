@@ -5,6 +5,20 @@
 > Aplicativo mobile desenvolvido em Flutter para gerenciamento de **Ordens de Serviço e Inspeções em campo**, com suporte a operação offline, persistência local e sincronização automática com uma API. O projeto foi desenvolvido como desafio técnico para uma vaga de **Desenvolvedor Mobile Flutter**.
 
 ---
+![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
+![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
+![flutter_bloc](https://img.shields.io/badge/flutter__bloc-5A45FF?style=for-the-badge&logo=bloc&logoColor=white)
+![Dio](https://img.shields.io/badge/Dio-5A64D8?style=for-the-badge&logo=dart&logoColor=white)
+![Hive CE](https://img.shields.io/badge/Hive%20CE-FFCA28?style=for-the-badge&logo=dart&logoColor=black)
+![flutter_secure_storage](https://img.shields.io/badge/flutter__secure__storage-02569B?style=for-the-badge&logo=flutter&logoColor=white)
+![GoRouter](https://img.shields.io/badge/GoRouter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
+![Geolocator](https://img.shields.io/badge/Geolocator-4285F4?style=for-the-badge&logo=googlemaps&logoColor=white)
+![ImagePicker](https://img.shields.io/badge/ImagePicker-02569B?style=for-the-badge&logo=flutter&logoColor=white)
+![connectivity_plus](https://img.shields.io/badge/connectivity__plus-02569B?style=for-the-badge&logo=flutter&logoColor=white)
+![UUID](https://img.shields.io/badge/UUID-6A53F6?style=for-the-badge&logo=dart&logoColor=white)
+![Mocktail](https://img.shields.io/badge/Mocktail-E91E63?style=for-the-badge&logo=dart&logoColor=white)
+![bloc_test](https://img.shields.io/badge/bloc__test-5A45FF?style=for-the-badge&logo=bloc&logoColor=white)
+---
 
 ## Visão geral
 
