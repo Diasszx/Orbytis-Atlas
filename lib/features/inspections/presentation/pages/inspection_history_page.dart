@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../../app/theme/app_colors.dart';
 import '../../../../app/widgets/orbytis_header.dart';
 import '../../models/inspection.dart';
 import '../bloc/history/inspection_history_bloc.dart';
@@ -20,19 +18,10 @@ final class InspectionHistoryPage extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         bottom: false,
-        child: Stack(
+        child: SizedBox.expand(
+          child: Stack(
           children: [
             const OrbytisHeader(title: 'Inspeções', height: 150),
-            Positioned(
-              top: 12,
-              left: 16,
-              child: IconButton(
-                tooltip: 'Voltar',
-                onPressed: context.pop,
-                color: AppColors.white,
-                icon: const Icon(Icons.arrow_back),
-              ),
-            ),
             Positioned.fill(
               top: 122,
               child: Container(
@@ -75,6 +64,7 @@ final class InspectionHistoryPage extends StatelessWidget {
               ),
             ),
           ],
+          ),
         ),
       ),
     );
