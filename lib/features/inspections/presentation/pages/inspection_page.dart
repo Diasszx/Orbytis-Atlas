@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:orbytis_atlas/features/inspections/models/inspection.dart';
+import 'package:orbytis_atlas/features/inspections/models/inspection_sync_status.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/forms/inspection_bloc.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/forms/inspection_state.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/sync/inspection_sync_bloc.dart';
@@ -11,6 +12,7 @@ import 'package:orbytis_atlas/features/inspections/presentation/bloc/sync/inspec
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/widgets/orbytis_header.dart';
 import '../widgets/inspection_form.dart';
+import '../widgets/inspection_sync_status.dart';
 
 final class InspectionPage extends StatefulWidget {
   const InspectionPage({super.key});
@@ -178,33 +180,23 @@ final class _InspectionCompletedView extends StatelessWidget {
           BlocBuilder<InspectionSyncBloc, InspectionSyncState>(
             builder: (context, state) {
               return switch (state) {
-                InspectionSyncLoading() => const _SyncStatus(
-                  icon: Icons.sync,
-                  title: 'Sincronizando...',
-                  message: 'Enviando a inspeção para o servidor.',
-                  isLoading: true,
+                InspectionSyncInitial() => InspectionSyncStatusView(
+                  status: inspection.syncStatus,
+                  message: inspection.syncError,
                 ),
-                InspectionSyncSuccess() => const _SyncStatus(
-                  icon: Icons.cloud_done_outlined,
-                  title: 'Sincronizado',
-                  message: 'A inspeção foi enviada com sucesso.',
-                ),
-                InspectionSyncPending(:final message) => _SyncStatus(
-                  icon: Icons.cloud_queue_outlined,
-                  title: 'Aguardando conexão',
-                  message: '$message\n\nA inspeção está salva neste dispositivo '
-                      'e será sincronizada automaticamente.',
-                ),
-                InspectionSyncFailure(:final message) => _SyncStatus(
-                  icon: Icons.error_outline,
-                  title: 'Sincronização pendente de atenção',
-                  message: message,
-                ),
-                InspectionSyncInitial() => const _SyncStatus(
-                  icon: Icons.cloud_queue_outlined,
-                  title: 'Aguardando sincronização',
-                  message: 'A inspeção foi salva neste dispositivo.',
-                ),
+                InspectionSyncLoading() => const _SyncingStatus(),
+                InspectionSyncSuccess(:final inspection) =>
+                  InspectionSyncStatusView(status: inspection.syncStatus),
+                InspectionSyncPending(:final inspection, :final message) =>
+                  InspectionSyncStatusView(
+                    status: inspection.syncStatus,
+                    message: message,
+                  ),
+                InspectionSyncFailure(:final inspection, :final message) =>
+                  InspectionSyncStatusView(
+                    status: inspection?.syncStatus ?? InspectionSyncStatus.failed,
+                    message: message,
+                  ),
               };
             },
           ),
@@ -219,43 +211,21 @@ final class _InspectionCompletedView extends StatelessWidget {
   }
 }
 
-final class _SyncStatus extends StatelessWidget {
-  const _SyncStatus({
-    required this.icon,
-    required this.title,
-    required this.message,
-    this.isLoading = false,
-  });
-
-  final IconData icon;
-  final String title;
-  final String message;
-  final bool isLoading;
+final class _SyncingStatus extends StatelessWidget {
+  const _SyncingStatus();
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Column(
+    return const Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (isLoading)
-          const SizedBox(
-            width: 32,
-            height: 32,
-            child: CircularProgressIndicator(strokeWidth: 3),
-          )
-        else
-          Icon(icon, size: 32, color: theme.colorScheme.primary),
-        const SizedBox(height: 12),
-        Text(
-          title,
-          textAlign: TextAlign.center,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
+        SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(strokeWidth: 2),
         ),
-        const SizedBox(height: 6),
-        Text(message, textAlign: TextAlign.center, style: theme.textTheme.bodyLarge),
+        SizedBox(width: 12),
+        Text('Sincronizando...'),
       ],
     );
   }
