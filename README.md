@@ -854,89 +854,56 @@ flutter pub get
 
 ---
 
-# Executando a API mock
+API Mock
 
-Entre na pasta da API mock fornecida com o desafio:
+A API mock utilizada pelo aplicativo faz parte dos materiais oficiais fornecidos para o desafio técnico.
 
-```bash
+O pacote original do desafio, contendo a API mock, contrato da API e demais arquivos de apoio, foi disponibilizado pela empresa através do seguinte link:
+
+Materiais oficiais do Desafio Flutter
+
+A API mock não foi desenvolvida como parte deste aplicativo. Ela foi fornecida pela empresa exclusivamente como suporte para desenvolvimento e validação do desafio técnico.
+
+Executando a API mock
+
+Após baixar e extrair o pacote fornecido pela empresa, acesse o diretório da API:
+
 cd mock-api
-```
 
-Instale as dependências, se necessário:
+Instale as dependências:
 
-```bash
 npm install
-```
 
-Execute:
+Inicie o servidor:
 
-```bash
 npm run start
-```
 
-A API deve ficar disponível em:
+Por padrão, a API será disponibilizada em:
 
-```text
 http://localhost:3000
-```
+Android Emulator
 
-Utilize as credenciais disponibilizadas pela API mock do desafio para realizar o login.
+No Android Emulator, utilize:
 
----
-
-# Executando no emulador Android
-
-No Android Emulator, `localhost` aponta para o próprio emulador.
-
-Para acessar a API executando na máquina host, utilize:
-
-```text
 http://10.0.2.2:3000
-```
 
-Configure a URL base da aplicação de acordo com o ambiente utilizado.
+pois localhost dentro do emulador referencia o próprio dispositivo virtual.
 
-Depois execute:
+Dispositivo Android físico
 
-```bash
-flutter run
-```
+Para desenvolvimento utilizando um dispositivo Android conectado via USB, é possível redirecionar a porta da máquina para o dispositivo:
 
----
-
-# Executando em dispositivo Android físico via USB
-
-Com o dispositivo conectado e a depuração USB habilitada:
-
-```bash
-adb devices
-```
-
-Crie o redirecionamento da porta:
-
-```bash
 adb reverse tcp:3000 tcp:3000
-```
 
-Nesse cenário, a aplicação pode utilizar:
+Nesse cenário, o aplicativo pode utilizar:
 
-```text
 http://localhost:3000
-```
-
-Para verificar os redirecionamentos existentes:
-
-```bash
-adb reverse --list
-```
 
 Para remover o redirecionamento:
 
-```bash
 adb reverse --remove tcp:3000
-```
 
-Essa última opção também pode ser utilizada para testar o comportamento offline do aplicativo.
+Esse comando também pode ser utilizado durante a validação do comportamento offline da aplicação.
 
 ---
 
