@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 import 'package:orbytis_atlas/app/app.dart';
@@ -62,9 +64,9 @@ Future<void> main() async {
     locationService: inspectionLocationService,
   );
 
-  InspectionSyncCoordinator(
+  final inspectionSyncCoordinator = InspectionSyncCoordinator(
     inspectionsRepository: inspectionsRepository,
-  ).start();
+  );
 
   final authRemoteDataSource = AuthRemoteDataSource(dioClient: dioClient);
 
@@ -100,4 +102,6 @@ Future<void> main() async {
       workOrdersBloc: workOrdersBloc,
     ),
   );
+
+  unawaited(inspectionSyncCoordinator.start());
 }
