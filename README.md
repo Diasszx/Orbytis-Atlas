@@ -2,9 +2,7 @@
 
 ![Preview do projeto](https://i.imgur.com/f8JGy3W.png)
 
-Aplicativo mobile desenvolvido em Flutter para gerenciamento de **Ordens de Serviço e Inspeções em campo**, com suporte a operação offline, persistência local e sincronização automática com uma API.
-
-O projeto foi desenvolvido como desafio técnico para uma vaga de **Desenvolvedor Mobile Flutter**.
+> Aplicativo mobile desenvolvido em Flutter para gerenciamento de **Ordens de Serviço e Inspeções em campo**, com suporte a operação offline, persistência local e sincronização automática com uma API. O projeto foi desenvolvido como desafio técnico para uma vaga de **Desenvolvedor Mobile Flutter**.
 
 ---
 
