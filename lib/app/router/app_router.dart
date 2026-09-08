@@ -4,8 +4,11 @@ import 'package:orbytis_atlas/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:orbytis_atlas/features/auth/presentation/bloc/auth_state.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/forms/inspection_bloc.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/forms/inspection_event.dart';
+import 'package:orbytis_atlas/features/inspections/presentation/bloc/history/inspection_history_bloc.dart';
+import 'package:orbytis_atlas/features/inspections/presentation/bloc/history/inspection_history_event.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/inspection_start_bloc.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/sync/inspection_sync_bloc.dart';
+import 'package:orbytis_atlas/features/inspections/presentation/pages/inspection_history_page.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/pages/inspection_page.dart';
 import 'package:orbytis_atlas/features/inspections/repositories/inspections_repository.dart';
 import 'package:orbytis_atlas/features/work_orders/presentation/bloc/work_order_details_bloc.dart';
@@ -71,6 +74,20 @@ final class AppRouter {
                      ),
                    ],
                    child: const WorkOrderDetailsPage(),
+                 ),
+               );
+             },
+           ),
+           GoRoute(
+             path: '/inspections',
+             pageBuilder: (context, state) {
+               return slideTransitionPage(
+                 state: state,
+                 child: BlocProvider(
+                   create: (_) =>
+                       InspectionHistoryBloc(inspectionsRepository)
+                         ..add(const InspectionHistoryRequested()),
+                   child: const InspectionHistoryPage(),
                  ),
                );
              },
