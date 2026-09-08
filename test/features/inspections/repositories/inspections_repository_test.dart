@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:orbytis_atlas/core/errors/network_exception.dart';
@@ -51,69 +53,132 @@ void main() {
   });
 
   group('syncInspection', () {
+    test(
+      'shares an upload between automatic and manual sync until saved',
+      () async {
+        final inspection = _buildInspection(
+          syncStatus: InspectionSyncStatus.pending,
+        );
+        final upload = Completer<String>();
+        final save = Completer<void>();
+        when(() => localDataSource.getPendingInspections())
+            .thenReturn([inspection]);
+        when(() => localDataSource.getInspectionByClientId(inspection.clientId))
+            .thenReturn(inspection);
+        when(() => remoteDataSource.submitInspection(any()))
+            .thenAnswer((_) => upload.future);
+        when(() => localDataSource.saveInspection(any()))
+            .thenAnswer((_) => save.future);
+
+        final automatic = repository.syncPendingInspections();
+        final manual = repository.syncInspection(inspection.clientId);
+        upload.complete('server_001');
+        await Future<void>.delayed(Duration.zero);
+        final repeated = repository.syncInspection(inspection.clientId);
+        expect(identical(manual, repeated), isTrue);
+        verify(() => remoteDataSource.submitInspection(any())).called(1);
+        save.complete();
+        await automatic;
+        expect((await manual).syncStatus, InspectionSyncStatus.synced);
+        expect(await repeated, same(await manual));
+      },
+    );
+
+    test(
+      'releases the upload after an exception so retry can succeed',
+      () async {
+        final inspection = _buildInspection(
+          syncStatus: InspectionSyncStatus.pending,
+        );
+        when(() => localDataSource.getInspectionByClientId(inspection.clientId))
+            .thenReturn(inspection);
+        when(() => remoteDataSource.submitInspection(any())).thenThrow(
+          const NetworkException(type: NetworkErrorType.unauthorized),
+        );
+        await expectLater(
+          repository.syncInspection(inspection.clientId),
+          throwsA(isA<InspectionsException>()),
+        );
+        when(() => remoteDataSource.submitInspection(any()))
+            .thenAnswer((_) async => 'server_001');
+        expect(
+          (await repository.syncInspection(inspection.clientId)).syncStatus,
+          InspectionSyncStatus.synced,
+        );
+        verify(() => remoteDataSource.submitInspection(any())).called(2);
+      },
+    );
+
     test('marks pending inspection as synced when API succeeds', () async {
-      final inspection = _buildInspection(syncStatus: InspectionSyncStatus.pending);
-      when(
-        () => localDataSource.getInspectionByClientId(inspection.clientId),
-      ).thenReturn(inspection);
-      when(() => remoteDataSource.submitInspection(any())).thenAnswer(
-        (_) async => 'server_001',
+      final inspection = _buildInspection(
+        syncStatus: InspectionSyncStatus.pending,
       );
+      when(() => localDataSource.getInspectionByClientId(inspection.clientId))
+          .thenReturn(inspection);
+      when(() => remoteDataSource.submitInspection(any()))
+          .thenAnswer((_) async => 'server_001');
 
       final result = await repository.syncInspection(inspection.clientId);
 
       expect(result.syncStatus, InspectionSyncStatus.synced);
       expect(result.serverId, 'server_001');
 
-      final captured = verify(
-        () => localDataSource.saveInspection(captureAny()),
-      ).captured.single as Inspection;
+      final captured =
+          verify(() => localDataSource.saveInspection(captureAny()))
+                  .captured
+                  .single
+              as Inspection;
       expect(captured.syncStatus, InspectionSyncStatus.synced);
       expect(captured.serverId, 'server_001');
     });
 
     test('preserves clientId when synchronizing inspection', () async {
-      final inspection = _buildInspection(syncStatus: InspectionSyncStatus.pending);
-      when(
-        () => localDataSource.getInspectionByClientId(inspection.clientId),
-      ).thenReturn(inspection);
-      when(() => remoteDataSource.submitInspection(any())).thenAnswer(
-        (_) async => 'server_001',
+      final inspection = _buildInspection(
+        syncStatus: InspectionSyncStatus.pending,
       );
+      when(() => localDataSource.getInspectionByClientId(inspection.clientId))
+          .thenReturn(inspection);
+      when(() => remoteDataSource.submitInspection(any()))
+          .thenAnswer((_) async => 'server_001');
 
       await repository.syncInspection(inspection.clientId);
 
-      final submittedInspection = verify(
-        () => remoteDataSource.submitInspection(captureAny()),
-      ).captured.single as Inspection;
+      final submittedInspection =
+          verify(() => remoteDataSource.submitInspection(captureAny()))
+                  .captured
+                  .single
+              as Inspection;
       expect(submittedInspection.clientId, inspection.clientId);
     });
 
     test('keeps inspection pending when connection fails', () async {
-      final inspection = _buildInspection(syncStatus: InspectionSyncStatus.pending);
-      when(
-        () => localDataSource.getInspectionByClientId(inspection.clientId),
-      ).thenReturn(inspection);
-      when(() => remoteDataSource.submitInspection(any())).thenThrow(
-        const NetworkException(type: NetworkErrorType.connection),
+      final inspection = _buildInspection(
+        syncStatus: InspectionSyncStatus.pending,
       );
+      when(() => localDataSource.getInspectionByClientId(inspection.clientId))
+          .thenReturn(inspection);
+      when(() => remoteDataSource.submitInspection(any()))
+          .thenThrow(const NetworkException(type: NetworkErrorType.connection));
 
       final result = await repository.syncInspection(inspection.clientId);
 
       expect(result.syncStatus, InspectionSyncStatus.pending);
       expect(result.syncError, isNotNull);
 
-      final captured = verify(
-        () => localDataSource.saveInspection(captureAny()),
-      ).captured.single as Inspection;
+      final captured =
+          verify(() => localDataSource.saveInspection(captureAny()))
+                  .captured
+                  .single
+              as Inspection;
       expect(captured.syncStatus, InspectionSyncStatus.pending);
     });
 
     test('marks inspection as failed when server rejects payload', () async {
-      final inspection = _buildInspection(syncStatus: InspectionSyncStatus.pending);
-      when(
-        () => localDataSource.getInspectionByClientId(inspection.clientId),
-      ).thenReturn(inspection);
+      final inspection = _buildInspection(
+        syncStatus: InspectionSyncStatus.pending,
+      );
+      when(() => localDataSource.getInspectionByClientId(inspection.clientId))
+          .thenReturn(inspection);
       when(() => remoteDataSource.submitInspection(any())).thenThrow(
         const NetworkException(
           type: NetworkErrorType.badResponse,
@@ -126,17 +191,20 @@ void main() {
       expect(result.syncStatus, InspectionSyncStatus.failed);
       expect(result.syncError, isNotNull);
 
-      final captured = verify(
-        () => localDataSource.saveInspection(captureAny()),
-      ).captured.single as Inspection;
+      final captured =
+          verify(() => localDataSource.saveInspection(captureAny()))
+                  .captured
+                  .single
+              as Inspection;
       expect(captured.syncStatus, InspectionSyncStatus.failed);
     });
 
     test('does not synchronize draft inspection', () async {
-      final inspection = _buildInspection(syncStatus: InspectionSyncStatus.draft);
-      when(
-        () => localDataSource.getInspectionByClientId(inspection.clientId),
-      ).thenReturn(inspection);
+      final inspection = _buildInspection(
+        syncStatus: InspectionSyncStatus.draft,
+      );
+      when(() => localDataSource.getInspectionByClientId(inspection.clientId))
+          .thenReturn(inspection);
 
       expect(
         () => repository.syncInspection(inspection.clientId),
@@ -150,9 +218,8 @@ void main() {
         syncStatus: InspectionSyncStatus.synced,
         serverId: 'server_001',
       );
-      when(
-        () => localDataSource.getInspectionByClientId(inspection.clientId),
-      ).thenReturn(inspection);
+      when(() => localDataSource.getInspectionByClientId(inspection.clientId))
+          .thenReturn(inspection);
 
       final result = await repository.syncInspection(inspection.clientId);
 

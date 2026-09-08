@@ -27,6 +27,7 @@ final class InspectionsRepository {
   final InspectionPhotoService _photoService;
   final InspectionLocationService _locationService;
   final Uuid _uuid;
+  final Map<String, Future<Inspection>> _syncsInFlight = {};
 
   Future<Inspection> createDraft({required String workOrderId}) async {
     final now = DateTime.now();
@@ -163,7 +164,19 @@ final class InspectionsRepository {
     }
   }
 
-  Future<Inspection> syncInspection(String clientId) async {
+  Future<Inspection> syncInspection(String clientId) {
+    return _syncsInFlight[clientId] ??= _syncAndRelease(clientId);
+  }
+
+  Future<Inspection> _syncAndRelease(String clientId) async {
+    try {
+      return await _syncInspection(clientId);
+    } finally {
+      _syncsInFlight.remove(clientId);
+    }
+  }
+
+  Future<Inspection> _syncInspection(String clientId) async {
     final inspection = _localDataSource.getInspectionByClientId(clientId);
 
     if (inspection == null) {

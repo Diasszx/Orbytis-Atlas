@@ -18,6 +18,7 @@ final class InspectionSyncCoordinator with WidgetsBindingObserver {
 
   bool _started = false;
   bool _isSyncing = false;
+  bool _syncRequested = false;
 
   Future<void> start() async {
     if (_started) {
@@ -39,6 +40,7 @@ final class InspectionSyncCoordinator with WidgetsBindingObserver {
     }
 
     _started = false;
+    _syncRequested = false;
     WidgetsBinding.instance.removeObserver(this);
     await _subscription?.cancel();
     _subscription = null;
@@ -75,6 +77,11 @@ final class InspectionSyncCoordinator with WidgetsBindingObserver {
   }
 
   Future<void> _syncPendingInspections() async {
+    if (!_started) {
+      return;
+    }
+
+    _syncRequested = true;
     if (_isSyncing) {
       return;
     }
@@ -82,9 +89,14 @@ final class InspectionSyncCoordinator with WidgetsBindingObserver {
     _isSyncing = true;
 
     try {
-      await _inspectionsRepository.syncPendingInspections();
-    } catch (_) {
-      // A próxima mudança de rede ou retomada do app fará outra tentativa.
+      do {
+        _syncRequested = false;
+        try {
+          await _inspectionsRepository.syncPendingInspections();
+        } catch (_) {
+          // Só repetimos se outro gatilho tiver solicitado uma nova passagem.
+        }
+      } while (_started && _syncRequested);
     } finally {
       _isSyncing = false;
     }
