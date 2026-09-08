@@ -18,6 +18,22 @@ final class WorkOrdersRepository {
     try {
       return await _remoteDataSource.getWorkOrderById(id);
     } on NetworkException catch (error) {
+      if (error.type == NetworkErrorType.unauthorized) {
+        throw _mapNetworkError(error);
+      }
+
+      try {
+        final cachedWorkOrder = _localDataSource.getWorkOrderById(id);
+
+        if (cachedWorkOrder != null) {
+          return cachedWorkOrder;
+        }
+      } on FormatException {
+        throw const WorkOrdersException(
+          'Os dados locais da ordem de serviço são inválidos.',
+        );
+      }
+
       throw _mapNetworkError(error);
     } on FormatException {
       throw const WorkOrdersException(

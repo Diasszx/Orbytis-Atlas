@@ -33,7 +33,27 @@ final class WorkOrdersLocalDataSource {
     }).toList();
   }
 
+  WorkOrder? getWorkOrderById(String id) {
+    final value = _box.get(id);
+
+    if (value == null) {
+      return null;
+    }
+
+    return _decodeWorkOrder(value);
+  }
+
   Future<void> clearWorkOrders() async {
     await _box.clear();
+  }
+
+  WorkOrder _decodeWorkOrder(String value) {
+    final decoded = jsonDecode(value);
+
+    if (decoded is! Map<String, dynamic>) {
+      throw const FormatException('Invalid cached work order data');
+    }
+
+    return WorkOrder.fromJson(decoded);
   }
 }
