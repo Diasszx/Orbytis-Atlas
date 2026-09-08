@@ -269,6 +269,20 @@ final class InspectionsRepository {
     }
   }
 
+  List<Inspection> getInspections() {
+    try {
+      final inspections = _localDataSource.getInspections();
+
+      inspections.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+
+      return inspections;
+    } on FormatException {
+      throw const InspectionsException(
+        'Os dados locais das inspeções são inválidos.',
+      );
+    }
+  }
+
   List<Inspection> getInspectionsByWorkOrderId(String workOrderId) {
     try {
       return _localDataSource.getInspectionsByWorkOrderId(workOrderId);

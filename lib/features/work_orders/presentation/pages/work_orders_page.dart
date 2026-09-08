@@ -97,6 +97,17 @@ final class _WorkOrdersPageState extends State<WorkOrdersPage> {
 
               Positioned(
                 top: 12,
+                right: 64,
+                child: IconButton(
+                  tooltip: 'Histórico de inspeções',
+                  onPressed: () => context.push('/inspections'),
+                  color: AppColors.white,
+                  icon: const Icon(Icons.history),
+                ),
+              ),
+
+              Positioned(
+                top: 12,
                 right: 16,
                 child: IconButton(
                   tooltip: 'Sair',
