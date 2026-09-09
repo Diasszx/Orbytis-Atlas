@@ -822,7 +822,7 @@ Também existe a ação:
 Salvar rascunho
 ```
 
-para salvar explicitamente o rascunho e continuar editando. Esse botão complementa o autosave e não exige os dados obrigatórios de uma conclusão. **Salvar e sair** persiste e retorna à tela anterior. **Concluir inspeção** é uma ação separada, que valida os campos, altera o status para `pending` e retorna à lista de OS.
+para salvar explicitamente o rascunho e retornar à tela da OS. Esse botão complementa o autosave e não exige os dados obrigatórios de uma conclusão. **Concluir inspeção** é uma ação separada, que valida os campos, altera o status para `pending` e retorna à lista de OS.
 
 ---
 
@@ -882,7 +882,23 @@ Somente depois ela entra na fila de sincronização.
 
 ---
 
+# Estado das inspeções na OS
+
+A badge operacional exibida no card e nos detalhes é derivada das inspeções locais: sem inspeção, **Aberta**; com rascunho, **Em andamento**; com inspeção concluída, **Finalizada**. Uma conclusão é considerada finalizada mesmo enquanto aguarda sincronização ou se o envio falhar. Havendo um novo rascunho após uma conclusão anterior, prevalece **Em andamento**.
+
+A busca por código filtra localmente as ordens carregadas, aceita trechos do código e ignora maiúsculas/minúsculas e espaços nas extremidades. Ela combina com o filtro de status, funciona sobre os dados disponíveis offline e pode ser limpa pelo botão no campo. Os cards destacam o código da OS; o ID técnico não é exibido.
+
+A lista exibe o ID da OS e permite filtrar pelo **Status da OS**: Todas (sem query), Abertas (`?status=open`), Em andamento (`?status=in_progress`) e Finalizadas (`?status=done`). O filtro é mantido ao atualizar ou tentar novamente; offline, é aplicado ao cache disponível.
+
+Esse status operacional vem da API e é separado do estado local da inspeção. O contrato utilizado pelo cliente não define uma operação de atualização do status da OS, portanto criar ou concluir uma inspeção não modifica esse campo no aplicativo.
+
+Os cards e os detalhes da OS mostram a quantidade de inspeções em rascunho, aguardando envio, com falha e sincronizadas. O resumo é atualizado após as gravações locais, inclusive na sincronização automática, sem duplicar o estado de sincronização no modelo da OS.
+
+Nos detalhes, o botão mostra **Continuar inspeção** quando existe um rascunho daquela OS e reabre esse rascunho. Sem rascunho, mostra **Iniciar inspeção**. O acesso ao histórico permite consultar os erros e tentar novamente.
+
 # Histórico de inspeções
+
+Os detalhes da OS exibem uma área **Inspeção em andamento** com a ação **Continuar inspeção** quando há rascunho. Abaixo da ação aparece o **Histórico de inspeções** concluídas daquela OS, com filtros de sincronização e nova tentativa para falhas. Os cards são expansíveis e mostram observação completa, condição, coordenadas e foto local, com indicação quando a imagem está indisponível. A data e a ordenação usam `capturedAt`, com `createdAt` como alternativa; sincronizar não muda a data da realização. O acesso pela lista de ordens continua abrindo o histórico geral, com rascunhos agrupados separadamente e ação de continuar.
 
 O histórico utiliza os dados persistidos localmente e continua disponível offline.
 
@@ -905,7 +921,7 @@ Filtros:
 
 Inspeções em estado `failed` permitem uma nova tentativa manual.
 
-O histórico recarrega os dados ao abrir a tela, trocar o filtro, puxar para atualizar uma lista não vazia ou terminar um retry manual. Ele não observa automaticamente as gravações do sync em segundo plano; se já estiver aberto, atualize a lista para consultar os novos estados.
+O histórico observa as gravações locais e atualiza os estados após sincronização automática ou manual. Atualizações e novas tentativas preservam o filtro selecionado e o vínculo com a OS. A assinatura das alterações é encerrada ao fechar o BLoC.
 
 ---
 
