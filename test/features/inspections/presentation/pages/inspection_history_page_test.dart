@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:orbytis_atlas/features/inspections/models/inspection.dart';
+import 'package:orbytis_atlas/features/inspections/models/inspection_sync_status.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/history/inspection_history_bloc.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/bloc/history/inspection_history_event.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/pages/inspection_history_page.dart';
-import 'package:orbytis_atlas/features/inspections/repositories/inspections_repository.dart';
-import 'package:orbytis_atlas/features/inspections/models/inspection.dart';
-import 'package:orbytis_atlas/features/inspections/models/inspection_sync_status.dart';
 import 'package:orbytis_atlas/features/inspections/presentation/widgets/inspection_history_card.dart';
+import 'package:orbytis_atlas/features/inspections/repositories/inspections_repository.dart';
 
 import '../../repositories/inspections_repository_test.dart'
     show MockInspectionsLocalDataSource, MockInspectionsRemoteDataSource,
