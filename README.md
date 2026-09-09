@@ -599,9 +599,9 @@ O Orbytis Atlas permite que um técnico de campo:
 
 ## Tela de abertura
 
-Ao iniciar o app, o `StartupApp` exibe a imagem `assets/images/hover_atlas.png`, centralizada sobre fundo preto e com a proporção preservada, sem cortes. A imagem está incluída no aplicativo e não depende de conexão.
+Ao iniciar o app, o `StartupApp` reproduz uma vez a animação Lottie `assets/animations/startup.json`, centralizada sobre fundo preto e com a proporção preservada, sem cortes. O JSON e sua imagem incorporada estão incluídos no aplicativo e não dependem de conexão. A composição de marca d’água do rodapé foi removida da cópia utilizada pelo app.
 
-A abertura aguarda a inicialização do armazenamento local e das dependências, com duração mínima de 1,2 segundo. Depois, o fluxo de autenticação direciona para o login ou para a lista de OS conforme a sessão. Se a inicialização falhar, uma mensagem orienta fechar e abrir o app novamente.
+A abertura aguarda a inicialização do armazenamento local e das dependências e o fim da animação (2,6 segundos). Depois, o fluxo de autenticação direciona para o login ou para a lista de OS conforme a sessão. Falhas no carregamento da animação não bloqueiam a inicialização; existe também uma proteção de 10 segundos para a animação. Se a inicialização falhar, uma mensagem orienta fechar e abrir o app novamente.
 
 Essa tela é renderizada pelo Flutter; a tela nativa anterior ao primeiro frame segue o comportamento do Android, com os fundos de lançamento configurados em preto. Para conferir a abertura completa após alterações, encerre e execute o app novamente.
 

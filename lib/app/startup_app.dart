@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lottie/lottie.dart';
 
-/// Displays the supplied artwork while local storage and dependencies load.
+/// Plays the intro once while local storage and dependencies load.
 final class StartupApp extends StatefulWidget {
   const StartupApp({required this.initialize, super.key});
 
@@ -11,13 +14,40 @@ final class StartupApp extends StatefulWidget {
   State<StartupApp> createState() => _StartupAppState();
 }
 
-final class _StartupAppState extends State<StartupApp> {
+final class _StartupAppState extends State<StartupApp>
+    with SingleTickerProviderStateMixin {
+  final _animationFinished = Completer<void>();
+  late final AnimationController _controller;
+  Timer? _animationTimeout;
   late final Future<Widget> _application = _load();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this)
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) _finishAnimation();
+      });
+    // A broken asset must not prevent an otherwise initialized app from opening.
+    _animationTimeout = Timer(const Duration(seconds: 10), _finishAnimation);
+  }
+
+  void _finishAnimation() {
+    _animationTimeout?.cancel();
+    if (!_animationFinished.isCompleted) _animationFinished.complete();
+  }
+
+  @override
+  void dispose() {
+    _animationTimeout?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
 
   Future<Widget> _load() async {
     final results = await Future.wait<Object>([
       widget.initialize(),
-      Future<bool>.delayed(const Duration(milliseconds: 1200), () => true),
+      _animationFinished.future.then((_) => true),
     ]);
     return results.first as Widget;
   }
@@ -41,11 +71,24 @@ final class _StartupAppState extends State<StartupApp> {
                 fit: StackFit.expand,
                 children: [
                   Center(
-                    child: Image.asset(
-                      'assets/images/hover_atlas.png',
+                    child: Semantics(
+                      label: 'Orbytis Atlas',
+                      image: true,
+                      child: Lottie.asset(
+                      'assets/animations/startup.json',
+                      controller: _controller,
+                      repeat: false,
                       fit: BoxFit.contain,
                       width: double.infinity,
-                      semanticLabel: 'Orbytis Atlas',
+                      onLoaded: (composition) {
+                        _controller.duration = composition.duration;
+                        _controller.forward();
+                      },
+                      errorBuilder: (_, _, _) {
+                        _finishAnimation();
+                        return const Text('Orbytis Atlas', style: TextStyle(color: Colors.white));
+                      },
+                    ),
                     ),
                   ),
                   if (snapshot.hasError)

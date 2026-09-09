@@ -19,6 +19,7 @@ dependencies:
   google_maps_flutter: ^2.18.0
   hive_ce_flutter: ^2.3.4
   image_picker: ^1.2.3
+  lottie: ^3.5.1
   path: ^1.9.1
   path_provider: ^2.1.6
   uuid: ^4.6.0
@@ -33,4 +34,4 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/hover_atlas.png
+    - assets/animations/startup.json
