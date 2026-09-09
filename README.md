@@ -5,7 +5,12 @@
 > Aplicativo mobile desenvolvido em Flutter para gerenciamento de **Ordens de Serviço e Inspeções em campo**, com suporte a operação offline, persistência local e sincronização automática com uma API.
 >
 > Projeto desenvolvido como desafio técnico para uma vaga de **Desenvolvedor Mobile Flutter**.
+---
+### Vídeo de demonstração
 
+[Assista à demonstração do Orbytis Atlas no YouTube](https://www.youtube.com/watch?v=gWNiGenpp68)
+
+O vídeo apresenta o fluxo principal do aplicativo, incluindo autenticação, ordens de serviço, inspeção em campo, funcionamento offline e sincronização.
 ---
 
 ## Tecnologias
@@ -1298,6 +1303,23 @@ Histórico
 ```
 
 ---
+Melhorias futuras / o que faria com mais tempo
+
+O escopo principal do desafio foi priorizado, especialmente os fluxos de autenticação, ordens de serviço, inspeção, persistência local e sincronização offline-first.
+
+Com mais tempo, as principais evoluções seriam:
+
+evoluir a persistência para Drift/SQLite caso o volume e os relacionamentos aumentem;
+
+adicionar paginação às ordens de serviço;
+
+melhorar a configuração de ambientes de desenvolvimento/homologação/produção;
+
+adicionar internacionalização;
+
+aplicar otimizações adicionais de compressão e armazenamento de imagens.
+
+Para um cenário de produção, também seria importante incluir monitoramento de falhas, métricas de sincronização e uma política mais completa para conflitos entre dados locais e remotos.
 
 ## Autor
 
