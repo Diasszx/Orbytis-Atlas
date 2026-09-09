@@ -22,6 +22,15 @@ final class WorkOrdersPage extends StatefulWidget {
 final class _WorkOrdersPageState extends State<WorkOrdersPage> {
   static const double _headerHeight = 150;
   static const double _panelOverlap = 75;
+  String? _selectedStatus;
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -40,7 +49,7 @@ final class _WorkOrdersPageState extends State<WorkOrdersPage> {
           state is WorkOrdersFailure,
     );
 
-    bloc.add(const WorkOrdersRefreshed());
+    bloc.add(WorkOrdersRefreshed(status: _selectedStatus));
 
     await refreshCompleted;
   }
@@ -174,9 +183,84 @@ final class _WorkOrdersPageState extends State<WorkOrdersPage> {
                               ),
                             ),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                        child: DropdownButtonFormField<String>(
+                          initialValue: '',
+                          decoration: const InputDecoration(
+                            labelText: 'Status da OS',
+                            border: OutlineInputBorder(),
+                          ),
+                          items: const [
+                            DropdownMenuItem(value: '', child: Text('Todas')),
+                            DropdownMenuItem(
+                              value: 'open',
+                              child: Text('Abertas'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'in_progress',
+                              child: Text('Em andamento'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'done',
+                              child: Text('Finalizadas'),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedStatus = value == '' ? null : value;
+                            });
+                            context.read<WorkOrdersBloc>().add(
+                              WorkOrdersRequested(status: _selectedStatus),
+                            );
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                        child: TextField(
+                          controller: _searchController,
+                          textInputAction: TextInputAction.search,
+                          onChanged: (value) => setState(() {
+                            _searchQuery = value.trim().toLowerCase();
+                          }),
+                          decoration: InputDecoration(
+                            labelText: 'Pesquisar por código da OS',
+                            hintText: 'Ex.: OS-2026-001',
+                            prefixIcon: const Icon(Icons.search),
+                            border: const OutlineInputBorder(),
+                            suffixIcon: _searchController.text.isEmpty
+                                ? null
+                                : IconButton(
+                                    tooltip: 'Limpar pesquisa',
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      _searchController.clear();
+                                      setState(() => _searchQuery = '');
+                                    },
+                                  ),
+                          ),
+                        ),
+                      ),
                       Expanded(
                         child: BlocBuilder<WorkOrdersBloc, WorkOrdersState>(
                           builder: (context, state) {
+                            final matchingOrders = state is WorkOrdersLoaded
+                                ? state.workOrders
+                                      .where(
+                                        (order) => order.code
+                                            .toLowerCase()
+                                            .contains(_searchQuery),
+                                      )
+                                      .toList()
+                                : null;
+                            if (matchingOrders != null &&
+                                matchingOrders.isEmpty) {
+                              return _EmptyState(
+                                onRefresh: _refresh,
+                                message: 'Nenhuma OS corresponde ao código pesquisado. Altere a pesquisa ou o filtro de status.',
+                              );
+                            }
                             return switch (state) {
                               WorkOrdersInitial() ||
                               WorkOrdersLoading() => const Center(
@@ -192,28 +276,31 @@ final class _WorkOrdersPageState extends State<WorkOrdersPage> {
                                   message: message,
                                   onRetry: () {
                                     context.read<WorkOrdersBloc>().add(
-                                      const WorkOrdersRequested(),
+                                      WorkOrdersRequested(
+                                        status: _selectedStatus,
+                                      ),
                                     );
                                   },
                                 ),
 
-                              WorkOrdersLoaded(:final workOrders) =>
-                                RefreshIndicator(
-                                  onRefresh: _refresh,
-                                  child: ListView.separated(
-                                    padding: const EdgeInsets.all(16),
-                                    physics:
-                                        const AlwaysScrollableScrollPhysics(),
-                                    itemCount: workOrders.length,
-                                    separatorBuilder: (_, _) =>
-                                        const SizedBox(height: 12),
-                                    itemBuilder: (context, index) {
-                                      return WorkOrderCard(
-                                        workOrder: workOrders[index],
-                                      );
-                                    },
-                                  ),
+                              WorkOrdersLoaded() => RefreshIndicator(
+                                onRefresh: _refresh,
+                                child: ListView.separated(
+                                  padding: const EdgeInsets.all(16),
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  keyboardDismissBehavior:
+                                      ScrollViewKeyboardDismissBehavior.onDrag,
+                                  itemCount: matchingOrders!.length,
+                                  separatorBuilder: (_, _) =>
+                                      const SizedBox(height: 12),
+                                  itemBuilder: (context, index) {
+                                    return WorkOrderCard(
+                                      workOrder: matchingOrders[index],
+                                    );
+                                  },
                                 ),
+                              ),
                             };
                           },
                         ),
@@ -231,9 +318,13 @@ final class _WorkOrdersPageState extends State<WorkOrdersPage> {
 }
 
 final class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.onRefresh});
+  const _EmptyState({
+    required this.onRefresh,
+    this.message = 'Puxe a tela para baixo para tentar novamente.',
+  });
 
   final Future<void> Function() onRefresh;
+  final String message;
 
   @override
   Widget build(BuildContext context) {
@@ -261,7 +352,7 @@ final class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Puxe a tela para baixo para tentar novamente.',
+            message,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyLarge?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,

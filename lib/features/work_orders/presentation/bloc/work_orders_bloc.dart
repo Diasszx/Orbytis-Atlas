@@ -12,6 +12,7 @@ final class WorkOrdersBloc extends Bloc<WorkOrdersEvent, WorkOrdersState> {
   }
 
   final WorkOrdersRepository _workOrdersRepository;
+  int _requestId = 0;
 
   Future<void> _onWorkOrdersRequested(
     WorkOrdersRequested event,
@@ -34,10 +35,12 @@ final class WorkOrdersBloc extends Bloc<WorkOrdersEvent, WorkOrdersState> {
     required String? status,
     required Emitter<WorkOrdersState> emit,
   }) async {
+    final requestId = ++_requestId;
     try {
       final workOrders = await _workOrdersRepository.getWorkOrders(
         status: status,
       );
+      if (emit.isDone || requestId != _requestId) return;
 
       if (workOrders.isEmpty) {
         emit(const WorkOrdersEmpty());
@@ -46,8 +49,10 @@ final class WorkOrdersBloc extends Bloc<WorkOrdersEvent, WorkOrdersState> {
 
       emit(WorkOrdersLoaded(workOrders: workOrders));
     } on WorkOrdersException catch (error) {
+      if (emit.isDone || requestId != _requestId) return;
       emit(WorkOrdersFailure(error.message));
     } catch (_) {
+      if (emit.isDone || requestId != _requestId) return;
       emit(
         const WorkOrdersFailure(
           'Não foi possível carregar as ordens de serviço.',

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../models/work_order.dart';
 import 'priority_badge.dart';
 import 'status_badge.dart';
+import 'work_order_inspections.dart';
 
 final class WorkOrderCard extends StatelessWidget {
   const WorkOrderCard({super.key, required this.workOrder});
@@ -25,6 +26,14 @@ final class WorkOrderCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text(
+                workOrder.code,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+              const SizedBox(height: 4),
               const SizedBox(height: 8),
               Text(
                 workOrder.title,
@@ -47,13 +56,24 @@ final class WorkOrderCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  PriorityBadge(priority: workOrder.priority),
-                  StatusBadge(status: workOrder.status),
-                ],
+              WorkOrderInspectionsBuilder(
+                workOrderId: workOrder.id,
+                builder: (context, inspections) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        PriorityBadge(priority: workOrder.priority),
+                        StatusBadge(
+                          status: workOrderStatusFromInspections(inspections),
+                        ),
+                      ],
+                    ),
+                    WorkOrderInspectionSummary(inspections: inspections),
+                  ],
+                ),
               ),
             ],
           ),
