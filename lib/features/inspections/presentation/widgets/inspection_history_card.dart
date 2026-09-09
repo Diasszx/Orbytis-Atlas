@@ -43,7 +43,10 @@ final class InspectionHistoryCard extends StatelessWidget {
               if (inspection.observation case final observation?
                   when observation.isNotEmpty) ...[
                 const Text('Observação'),
-                SelectableText(observation),
+                SelectableText(
+                  observation,
+                  key: PageStorageKey('observation-${inspection.clientId}'),
+                ),
               ],
               if (inspection.condition case final condition?) ...[
                 const SizedBox(height: 12),
@@ -56,6 +59,7 @@ final class InspectionHistoryCard extends StatelessWidget {
                 inspection.latitude != null && inspection.longitude != null
                     ? '${inspection.latitude}, ${inspection.longitude}'
                     : 'Localização não registrada.',
+                key: PageStorageKey('location-${inspection.clientId}'),
               ),
               const SizedBox(height: 12),
               const Text('Foto'),

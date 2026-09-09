@@ -50,8 +50,14 @@ void main() {
     );
     final bloc = InspectionHistoryBloc(repository, workOrderId: 'wo_1');
     Future<InspectionHistoryLoaded> load(InspectionHistoryEvent event) async {
+      final expectedFilter = event is InspectionHistoryFilterChanged
+          ? event.filter
+          : bloc.state is InspectionHistoryLoaded
+          ? (bloc.state as InspectionHistoryLoaded).filter
+          : InspectionHistoryFilter.all;
       final result = bloc.stream.firstWhere(
-        (state) => state is InspectionHistoryLoaded,
+        (state) =>
+            state is InspectionHistoryLoaded && state.filter == expectedFilter,
       );
       bloc.add(event);
       return await result as InspectionHistoryLoaded;
@@ -84,8 +90,9 @@ void main() {
     expect(result.filter, InspectionHistoryFilter.failed);
     expect(result.inspections, isEmpty);
     expect(
-      (await load(const InspectionHistoryFilterChanged(InspectionHistoryFilter.synced)))
-          .inspections.map((item) => item.clientId),
+      (await load(
+        const InspectionHistoryFilterChanged(InspectionHistoryFilter.synced),
+      )).inspections.map((item) => item.clientId),
       ['failed'],
     );
     final general = InspectionHistoryBloc(repository);
