@@ -1303,7 +1303,7 @@ Histórico
 ```
 
 ---
-Melhorias futuras / o que faria com mais tempo
+# Melhorias futuras / o que faria com mais tempo
 
 O escopo principal do desafio foi priorizado, especialmente os fluxos de autenticação, ordens de serviço, inspeção, persistência local e sincronização offline-first.
 
