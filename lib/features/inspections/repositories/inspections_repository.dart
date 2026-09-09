@@ -27,6 +27,17 @@ final class InspectionsRepository {
   final Uuid _uuid;
   final Map<String, Future<Inspection>> _syncsInFlight = {};
 
+  final _changes = StreamController<void>.broadcast();
+
+  Stream<void> get changes => _changes.stream;
+
+  Future<void> dispose() => _changes.close();
+
+  Future<void> _persistInspection(Inspection inspection) async {
+    await _localDataSource.saveInspection(inspection);
+    _changes.add(null);
+  }
+
   Future<Inspection> createDraft({required String workOrderId}) async {
     final now = DateTime.now();
 
@@ -39,7 +50,7 @@ final class InspectionsRepository {
     );
 
     try {
-      await _localDataSource.saveInspection(inspection);
+      await _persistInspection(inspection);
 
       return inspection;
     } catch (_) {
@@ -64,7 +75,7 @@ final class InspectionsRepository {
         updatedAt: now,
       );
 
-      await _localDataSource.saveInspection(inspection);
+      await _persistInspection(inspection);
       return inspection;
     } catch (_) {
       throw const InspectionsException('Não foi possível iniciar a inspeção.');
@@ -75,7 +86,7 @@ final class InspectionsRepository {
     try {
       final updatedInspection = inspection.copyWith(updatedAt: DateTime.now());
 
-      await _localDataSource.saveInspection(updatedInspection);
+      await _persistInspection(updatedInspection);
 
       return updatedInspection;
     } catch (_) {
@@ -98,7 +109,7 @@ final class InspectionsRepository {
         updatedAt: DateTime.now(),
       );
 
-      await _localDataSource.saveInspection(updatedInspection);
+      await _persistInspection(updatedInspection);
       return updatedInspection;
     } catch (_) {
       throw const InspectionsException('Não foi possível registrar a foto.');
@@ -114,7 +125,7 @@ final class InspectionsRepository {
         updatedAt: DateTime.now(),
       );
 
-      await _localDataSource.saveInspection(updatedInspection);
+      await _persistInspection(updatedInspection);
       return updatedInspection;
     } on InspectionLocationException catch (error) {
       throw InspectionsException(error.message);
@@ -155,7 +166,7 @@ final class InspectionsRepository {
     );
 
     try {
-      await _localDataSource.saveInspection(completedInspection);
+      await _persistInspection(completedInspection);
       return completedInspection;
     } catch (_) {
       throw const InspectionsException('Não foi possível concluir a inspeção.');
@@ -201,7 +212,7 @@ final class InspectionsRepository {
         updatedAt: DateTime.now(),
       );
 
-      await _localDataSource.saveInspection(syncedInspection);
+      await _persistInspection(syncedInspection);
       return syncedInspection;
     } on NetworkException catch (error) {
       return _handleSyncNetworkError(inspection, error);
@@ -212,7 +223,7 @@ final class InspectionsRepository {
         updatedAt: DateTime.now(),
       );
 
-      await _localDataSource.saveInspection(failedInspection);
+      await _persistInspection(failedInspection);
       return failedInspection;
     }
   }
@@ -252,7 +263,7 @@ final class InspectionsRepository {
       updatedAt: DateTime.now(),
     );
 
-    await _localDataSource.saveInspection(updatedInspection);
+    await _persistInspection(updatedInspection);
     return updatedInspection;
   }
 

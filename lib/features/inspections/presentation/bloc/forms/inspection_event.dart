@@ -41,10 +41,6 @@ final class InspectionAutosaveRequested extends InspectionEvent {
   const InspectionAutosaveRequested();
 }
 
-final class InspectionSaveAndExitRequested extends InspectionEvent {
-  const InspectionSaveAndExitRequested();
-}
-
 final class InspectionConditionChanged extends InspectionEvent {
   const InspectionConditionChanged(this.condition);
 

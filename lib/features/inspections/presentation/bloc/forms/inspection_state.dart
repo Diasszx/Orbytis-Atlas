@@ -51,8 +51,8 @@ final class InspectionGettingLocation extends InspectionState {
   List<Object?> get props => [inspection];
 }
 
-final class InspectionSaveAndExitSuccess extends InspectionState {
-  const InspectionSaveAndExitSuccess(this.inspection);
+final class InspectionDraftSaveSuccess extends InspectionState {
+  const InspectionDraftSaveSuccess(this.inspection);
 
   final Inspection inspection;
 

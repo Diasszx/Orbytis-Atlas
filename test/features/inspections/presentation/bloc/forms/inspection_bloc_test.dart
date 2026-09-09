@@ -52,6 +52,22 @@ void main() {
 
   group('InspectionBloc', () {
     blocTest<InspectionBloc, InspectionState>(
+      'saving draft emits success used to return to OS',
+      build: () => InspectionBloc(repository),
+      seed: () => InspectionLoaded(_buildDraft()),
+      act: (bloc) => bloc.add(const InspectionDraftSaved()),
+      expect: () => [
+        isA<InspectionLoaded>().having(
+          (state) => state.saveStatus,
+          'saveStatus',
+          InspectionSaveStatus.saving,
+        ),
+        isA<InspectionDraftSaveSuccess>(),
+      ],
+      verify: (_) => verify(() => localDataSource.saveInspection(any())).called(1),
+    );
+
+    blocTest<InspectionBloc, InspectionState>(
       'loads draft by clientId',
       build: () {
         final inspection = _buildDraft();

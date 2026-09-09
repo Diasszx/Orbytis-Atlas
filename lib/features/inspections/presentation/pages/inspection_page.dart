@@ -53,7 +53,7 @@ final class _InspectionPageState extends State<InspectionPage> {
                   ),
                   child: BlocConsumer<InspectionBloc, InspectionState>(
                     listener: (context, state) {
-                      if (state is InspectionSaveAndExitSuccess) {
+                      if (state is InspectionDraftSaveSuccess) {
                         _showSaveSuccess();
                       }
 
@@ -108,7 +108,7 @@ final class _InspectionPageState extends State<InspectionPage> {
                             saveStatus: InspectionSaveStatus.error,
                             errorMessage: message,
                           ),
-                        InspectionSaveAndExitSuccess(:final inspection) =>
+                        InspectionDraftSaveSuccess(:final inspection) =>
                           InspectionForm(
                             inspection: inspection,
                             saveStatus: InspectionSaveStatus.saved,

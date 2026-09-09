@@ -252,14 +252,6 @@ final class InspectionForm extends StatelessWidget {
             label: Text(isConcluding ? 'Concluindo...' : 'Concluir inspeção'),
           ),
         ),
-        TextButton(
-          onPressed: isBusy
-              ? null
-              : () => context.read<InspectionBloc>().add(
-                  const InspectionSaveAndExitRequested(),
-                ),
-          child: const Text('Salvar e sair'),
-        ),
       ],
     );
   }

@@ -16,7 +16,6 @@ final class InspectionBloc extends Bloc<InspectionEvent, InspectionState> {
     on<InspectionPhotoRequested>(_onInspectionPhotoRequested);
     on<InspectionLocationRequested>(_onInspectionLocationRequested);
     on<InspectionAutosaveRequested>(_onInspectionAutosaveRequested);
-    on<InspectionSaveAndExitRequested>(_onInspectionSaveAndExitRequested);
     on<InspectionConditionChanged>(_onInspectionConditionChanged);
     on<InspectionConclusionRequested>(_onInspectionConclusionRequested);
   }
@@ -126,13 +125,6 @@ final class InspectionBloc extends Bloc<InspectionEvent, InspectionState> {
     InspectionDraftSaved event,
     Emitter<InspectionState> emit,
   ) async {
-    await _saveCurrentInspection(emit);
-  }
-
-  Future<void> _onInspectionSaveAndExitRequested(
-    InspectionSaveAndExitRequested event,
-    Emitter<InspectionState> emit,
-  ) async {
     _autosaveTimer?.cancel();
 
     final inspection = _currentInspection;
@@ -152,7 +144,7 @@ final class InspectionBloc extends Bloc<InspectionEvent, InspectionState> {
       final savedInspection = await _inspectionsRepository.saveInspection(
         inspection,
       );
-      emit(InspectionSaveAndExitSuccess(savedInspection));
+      emit(InspectionDraftSaveSuccess(savedInspection));
     } on InspectionsException catch (error) {
       emit(
         InspectionLoaded(
@@ -300,35 +292,6 @@ final class InspectionBloc extends Bloc<InspectionEvent, InspectionState> {
         InspectionSaveFailure(
           inspection: inspection,
           message: 'Não foi possível registrar a localização.',
-        ),
-      );
-    }
-  }
-
-  Future<void> _saveCurrentInspection(Emitter<InspectionState> emit) async {
-    _autosaveTimer?.cancel();
-    final inspection = _currentInspection;
-
-    if (inspection == null) {
-      return;
-    }
-
-    emit(InspectionSaving(inspection));
-
-    try {
-      final savedInspection = await _inspectionsRepository.saveInspection(
-        inspection,
-      );
-      emit(InspectionLoaded(savedInspection));
-    } on InspectionsException catch (error) {
-      emit(
-        InspectionSaveFailure(inspection: inspection, message: error.message),
-      );
-    } catch (_) {
-      emit(
-        InspectionSaveFailure(
-          inspection: inspection,
-          message: 'Não foi possível salvar o rascunho.',
         ),
       );
     }
