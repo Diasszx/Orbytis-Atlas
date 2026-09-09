@@ -54,7 +54,10 @@ final class AppRouter {
              path: '/work-orders',
              builder: (context, state) => BlocProvider(
                create: (_) => InspectionQueueCubit(inspectionsRepository),
-               child: const WorkOrdersPage(),
+               child: RepositoryProvider.value(
+                 value: inspectionsRepository,
+                 child: const WorkOrdersPage(),
+               ),
              ),
            ),
            GoRoute(
@@ -76,7 +79,10 @@ final class AppRouter {
                            InspectionStartBloc(inspectionsRepository),
                      ),
                    ],
-                   child: const WorkOrderDetailsPage(),
+                   child: RepositoryProvider.value(
+                     value: inspectionsRepository,
+                     child: const WorkOrderDetailsPage(),
+                   ),
                  ),
                );
              },
@@ -87,9 +93,10 @@ final class AppRouter {
                return slideTransitionPage(
                  state: state,
                  child: BlocProvider(
-                   create: (_) =>
-                       InspectionHistoryBloc(inspectionsRepository)
-                         ..add(const InspectionHistoryRequested()),
+                   create: (_) => InspectionHistoryBloc(
+                     inspectionsRepository,
+                     workOrderId: state.uri.queryParameters['workOrderId'],
+                   )..add(const InspectionHistoryRequested()),
                    child: const InspectionHistoryPage(),
                  ),
                );

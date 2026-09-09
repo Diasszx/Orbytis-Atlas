@@ -13,6 +13,10 @@ final class InspectionHistoryRequested extends InspectionHistoryEvent {
   const InspectionHistoryRequested();
 }
 
+final class InspectionHistoryUpdated extends InspectionHistoryEvent {
+  const InspectionHistoryUpdated();
+}
+
 final class InspectionHistoryFilterChanged extends InspectionHistoryEvent {
   const InspectionHistoryFilterChanged(this.filter);
 

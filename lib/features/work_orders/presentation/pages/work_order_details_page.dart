@@ -3,15 +3,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/widgets/orbytis_header.dart';
+import '../../../inspections/models/inspection_sync_status.dart';
 import '../../../inspections/presentation/bloc/inspection_start_bloc.dart';
 import '../../../inspections/presentation/bloc/inspection_start_event.dart';
 import '../../../inspections/presentation/bloc/inspection_start_state.dart';
+import '../../../inspections/presentation/widgets/inspection_sync_status.dart';
+import '../../../inspections/presentation/widgets/work_order_history_section.dart';
 import '../../models/work_order.dart';
 import '../bloc/work_order_details_bloc.dart';
 import '../bloc/work_order_details_state.dart';
 import '../widgets/priority_badge.dart';
 import '../widgets/status_badge.dart';
 import '../widgets/work_order_details_section.dart';
+import '../widgets/work_order_inspections.dart';
 
 final class WorkOrderDetailsPage extends StatelessWidget {
   const WorkOrderDetailsPage({super.key});
@@ -25,9 +29,8 @@ final class WorkOrderDetailsPage extends StatelessWidget {
         }
 
         if (state case InspectionStartFailure(:final message)) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(message)),
-          );
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(message)));
         }
       },
       child: Scaffold(
@@ -67,118 +70,146 @@ final class _WorkOrderDetailsContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return SizedBox.expand(
-      child: Stack(
-        children: [
-          const OrbytisHeader(
-            title: 'Detalhes OS',
-            height: _headerHeight,
-          ),
-          Positioned.fill(
-            top: _headerHeight - _panelOverlap,
-            child: Container(
-              decoration: BoxDecoration(
-                color: theme.scaffoldBackgroundColor,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(28),
-                ),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: ListView(
-                padding: const EdgeInsets.all(24),
-                children: [
-                  Text(
-                    workOrder.title,
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
+    return WorkOrderInspectionsBuilder(
+      workOrderId: workOrder.id,
+      builder: (context, inspections) {
+        final hasDraft = inspections.any(
+          (inspection) => inspection.syncStatus == InspectionSyncStatus.draft,
+        );
+        return SizedBox.expand(
+          child: Stack(
+            children: [
+              const OrbytisHeader(title: 'Detalhes OS', height: _headerHeight),
+              Positioned.fill(
+                top: _headerHeight - _panelOverlap,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: theme.scaffoldBackgroundColor,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(28),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
+                  clipBehavior: Clip.antiAlias,
+                  child: ListView(
+                    padding: const EdgeInsets.all(24),
                     children: [
-                      PriorityBadge(priority: workOrder.priority),
-                      StatusBadge(status: workOrder.status),
-                    ],
-                  ),
-                  const SizedBox(height: 28),
-                  WorkOrderDetailsSection(
-                    icon: Icons.location_on_outlined,
-                    title: 'Local',
-                    child: Text(
-                      workOrder.address,
-                      style: theme.textTheme.bodyLarge,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  WorkOrderDetailsSection(
-                    icon: Icons.description_outlined,
-                    title: 'Descrição',
-                    child: Text(
-                      workOrder.description,
-                      style: theme.textTheme.bodyLarge,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  WorkOrderDetailsSection(
-                    icon: Icons.event_outlined,
-                    title: 'Agendamento',
-                    child: Text(
-                      _formatDateTime(workOrder.scheduledAt),
-                      style: theme.textTheme.bodyLarge,
-                    ),
-                  ),
-                  if (workOrder.notes != null &&
-                      workOrder.notes!.trim().isNotEmpty) ...[
-                    const SizedBox(height: 24),
-                    WorkOrderDetailsSection(
-                      icon: Icons.notes_outlined,
-                      title: 'Observações da OS',
-                      child: Text(
-                        workOrder.notes!,
-                        style: theme.textTheme.bodyLarge,
+                      Text(
+                        workOrder.title,
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                    ),
-                  ],
-                  const SizedBox(height: 32),
-                  BlocBuilder<InspectionStartBloc, InspectionStartState>(
-                    builder: (context, state) {
-                      final isLoading = state is InspectionStartLoading;
-
-                      return SizedBox(
-                        width: double.infinity,
-                        child: FilledButton.icon(
-                          onPressed: isLoading
-                              ? null
-                              : () {
-                                  context.read<InspectionStartBloc>().add(
-                                    InspectionStartRequested(workOrder.id),
-                                  );
-                                },
-                          icon: isLoading
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Icon(Icons.play_arrow),
-                          label: Text(
-                            isLoading ? 'Iniciando...' : 'Iniciar inspeção',
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          PriorityBadge(priority: workOrder.priority),
+                          StatusBadge(
+                            status: workOrderStatusFromInspections(inspections),
+                          ),
+                        ],
+                      ),
+                      WorkOrderInspectionSummary(inspections: inspections),
+                      const SizedBox(height: 28),
+                      WorkOrderDetailsSection(
+                        icon: Icons.location_on_outlined,
+                        title: 'Local',
+                        child: Text(
+                          workOrder.address,
+                          style: theme.textTheme.bodyLarge,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      WorkOrderDetailsSection(
+                        icon: Icons.description_outlined,
+                        title: 'Descrição',
+                        child: Text(
+                          workOrder.description,
+                          style: theme.textTheme.bodyLarge,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      WorkOrderDetailsSection(
+                        icon: Icons.event_outlined,
+                        title: 'Agendamento',
+                        child: Text(
+                          _formatDateTime(workOrder.scheduledAt),
+                          style: theme.textTheme.bodyLarge,
+                        ),
+                      ),
+                      if (workOrder.notes != null &&
+                          workOrder.notes!.trim().isNotEmpty) ...[
+                        const SizedBox(height: 24),
+                        WorkOrderDetailsSection(
+                          icon: Icons.notes_outlined,
+                          title: 'Observações da OS',
+                          child: Text(
+                            workOrder.notes!,
+                            style: theme.textTheme.bodyLarge,
                           ),
                         ),
-                      );
-                    },
+                      ],
+                      const SizedBox(height: 32),
+                      if (hasDraft) ...[
+                        Text(
+                          'Inspeção em andamento',
+                          style: theme.textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 12),
+                        const InspectionSyncStatusView(
+                          status: InspectionSyncStatus.draft,
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      BlocBuilder<InspectionStartBloc, InspectionStartState>(
+                        builder: (context, state) {
+                          final isLoading = state is InspectionStartLoading;
+
+                          return SizedBox(
+                            width: double.infinity,
+                            child: FilledButton.icon(
+                              onPressed: isLoading
+                                  ? null
+                                  : () {
+                                      context.read<InspectionStartBloc>().add(
+                                        InspectionStartRequested(workOrder.id),
+                                      );
+                                    },
+                              icon: isLoading
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(Icons.play_arrow),
+                              label: Text(
+                                isLoading
+                                    ? 'Abrindo inspeção...'
+                                    : hasDraft
+                                    ? 'Continuar inspeção'
+                                    : 'Iniciar inspeção',
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 32),
+                      WorkOrderHistorySection(
+                        key: ValueKey(workOrder.id),
+                        workOrderId: workOrder.id,
+                      ),
+                      const SizedBox(height: 24),
+                    ],
                   ),
-                  const SizedBox(height: 32),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

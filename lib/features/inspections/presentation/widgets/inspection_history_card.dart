@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../models/inspection.dart';
 import '../../models/inspection_sync_status.dart';
@@ -21,57 +24,84 @@ final class InspectionHistoryCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'OS ${inspection.workOrderId}',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ExpansionTile(
+            key: PageStorageKey('inspection-${inspection.clientId}'),
+            title: Text(
+              'Inspeção • ${_formatDate(inspection.capturedAt ?? inspection.createdAt)}',
+              style: theme.textTheme.titleSmall,
             ),
-            const SizedBox(height: 12),
-            InspectionSyncStatusView(
+            subtitle: InspectionSyncStatusView(
               status: inspection.syncStatus,
               message: inspection.syncError,
             ),
-            const SizedBox(height: 12),
-            Text(
-              _formatDate(inspection.updatedAt),
-              style: theme.textTheme.bodySmall,
-            ),
-            if (inspection.observation case final observation?
-                when observation.isNotEmpty) ...[
+            expandedCrossAxisAlignment: CrossAxisAlignment.start,
+            childrenPadding: const EdgeInsets.all(16),
+            children: [
+              if (inspection.observation case final observation?
+                  when observation.isNotEmpty) ...[
+                const Text('Observação'),
+                SelectableText(observation),
+              ],
+              if (inspection.condition case final condition?) ...[
+                const SizedBox(height: 12),
+                const Text('Condição'),
+                Text(condition),
+              ],
               const SizedBox(height: 12),
-              Text(
-                observation,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+              const Text('Localização'),
+              SelectableText(
+                inspection.latitude != null && inspection.longitude != null
+                    ? '${inspection.latitude}, ${inspection.longitude}'
+                    : 'Localização não registrada.',
               ),
+              const SizedBox(height: 12),
+              const Text('Foto'),
+              if (inspection.photoPath case final photoPath?)
+                Image.file(
+                  File(photoPath),
+                  height: 220,
+                  width: double.infinity,
+                  fit: BoxFit.contain,
+                  semanticLabel: 'Foto da inspeção',
+                  errorBuilder: (_, _, _) =>
+                      const Text('Foto indisponível neste dispositivo.'),
+                )
+              else
+                const Text('Foto não registrada.'),
             ],
-            if (inspection.syncStatus == InspectionSyncStatus.failed) ...[
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: isRetrying ? null : onRetry,
-                  icon: isRetrying
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.refresh),
-                  label: Text(
-                    isRetrying ? 'Tentando novamente...' : 'Tentar novamente',
-                  ),
+          ),
+          if (inspection.syncStatus == InspectionSyncStatus.draft)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: OutlinedButton.icon(
+                onPressed: () =>
+                    context.push('/inspections/${inspection.clientId}'),
+                icon: const Icon(Icons.edit_outlined),
+                label: const Text('Continuar inspeção'),
+              ),
+            ),
+          if (inspection.syncStatus == InspectionSyncStatus.failed) ...[
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: OutlinedButton.icon(
+                onPressed: isRetrying ? null : onRetry,
+                icon: isRetrying
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.refresh),
+                label: Text(
+                  isRetrying ? 'Tentando novamente...' : 'Tentar novamente',
                 ),
               ),
-            ],
+            ),
           ],
-        ),
+        ],
       ),
     );
   }

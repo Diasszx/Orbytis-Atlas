@@ -23,7 +23,10 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
       final local = MockInspectionsLocalDataSource();
       when(() => local.getInspections()).thenReturn(
-        empty ? [] : List.generate(10, (_) => _buildInspection(syncStatus: InspectionSyncStatus.synced)),
+        empty ? [] : List.generate(10, (index) => Inspection.fromJson({
+          ..._buildInspection(syncStatus: InspectionSyncStatus.synced).toJson(),
+          'clientId': 'client-$index',
+        })),
       );
       final bloc = InspectionHistoryBloc(InspectionsRepository(
         localDataSource: local,
@@ -44,7 +47,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       expect(find.text('Inspeções'), findsOneWidget);
-      expect(find.byType(IconButton), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_back_ios_new), findsOneWidget);
       if (empty) {
         expect(find.text('Nenhuma inspeção encontrada'), findsOneWidget);
       } else {

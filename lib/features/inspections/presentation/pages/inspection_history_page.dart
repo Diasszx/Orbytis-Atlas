@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app/widgets/orbytis_header.dart';
 import '../../models/inspection.dart';
+import '../../models/inspection_sync_status.dart';
 import '../bloc/history/inspection_history_bloc.dart';
 import '../bloc/history/inspection_history_event.dart';
 import '../bloc/history/inspection_history_state.dart';
@@ -20,50 +21,63 @@ final class InspectionHistoryPage extends StatelessWidget {
         bottom: false,
         child: SizedBox.expand(
           child: Stack(
-          children: [
-            const OrbytisHeader(title: 'Inspeções', height: 150),
-            Positioned.fill(
-              top: 122,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: theme.scaffoldBackgroundColor,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(28),
+            children: [
+              OrbytisHeader(
+                title: context.read<InspectionHistoryBloc>().workOrderId == null
+                    ? 'Inspeções'
+                    : 'Inspeções da OS',
+                height: 150,
+              ),
+              Positioned.fill(
+                top: 122,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: theme.scaffoldBackgroundColor,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(28),
+                    ),
                   ),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: BlocConsumer<InspectionHistoryBloc, InspectionHistoryState>(
-                  listener: (context, state) {
-                    if (state case InspectionHistoryLoaded(
-                      :final feedbackMessage,
-                    ) when feedbackMessage != null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(feedbackMessage)),
-                      );
-                    }
-                  },
-                  builder: (context, state) {
-                    return switch (state) {
-                      InspectionHistoryInitial() || InspectionHistoryLoading() =>
-                        const Center(child: CircularProgressIndicator()),
-                      InspectionHistoryFailure(:final message) =>
-                        _HistoryFailure(message: message),
-                      InspectionHistoryLoaded(
-                        :final inspections,
-                        :final filter,
-                        :final retryingClientId,
-                      ) =>
-                        _HistoryContent(
-                          inspections: inspections,
-                          filter: filter,
-                          retryingClientId: retryingClientId,
-                        ),
-                    };
-                  },
+                  clipBehavior: Clip.antiAlias,
+                  child:
+                      BlocConsumer<
+                        InspectionHistoryBloc,
+                        InspectionHistoryState
+                      >(
+                        listener: (context, state) {
+                          if (state
+                              case InspectionHistoryLoaded(
+                                :final feedbackMessage,
+                              )
+                              when feedbackMessage != null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(feedbackMessage)),
+                            );
+                          }
+                        },
+                        builder: (context, state) {
+                          return switch (state) {
+                            InspectionHistoryInitial() ||
+                            InspectionHistoryLoading() => const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                            InspectionHistoryFailure(:final message) =>
+                              _HistoryFailure(message: message),
+                            InspectionHistoryLoaded(
+                              :final inspections,
+                              :final filter,
+                              :final retryingClientId,
+                            ) =>
+                              _HistoryContent(
+                                inspections: inspections,
+                                filter: filter,
+                                retryingClientId: retryingClientId,
+                              ),
+                          };
+                        },
+                      ),
                 ),
               ),
-            ),
-          ],
+            ],
           ),
         ),
       ),
@@ -84,6 +98,13 @@ final class _HistoryContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final drafts = inspections
+        .where((item) => item.syncStatus == InspectionSyncStatus.draft)
+        .toList();
+    final completed = inspections
+        .where((item) => item.syncStatus != InspectionSyncStatus.draft)
+        .toList();
+    final ordered = [...drafts, ...completed];
     return Column(
       children: [
         SingleChildScrollView(
@@ -139,15 +160,34 @@ final class _HistoryContent extends StatelessWidget {
                     itemCount: inspections.length,
                     separatorBuilder: (_, _) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
-                      final inspection = inspections[index];
-                      return InspectionHistoryCard(
-                        inspection: inspection,
-                        isRetrying: retryingClientId == inspection.clientId,
-                        onRetry: () {
-                          context.read<InspectionHistoryBloc>().add(
-                            InspectionHistoryRetryRequested(inspection.clientId),
-                          );
-                        },
+                      final inspection = ordered[index];
+                      return Column(
+                        key: ValueKey(inspection.clientId),
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (index == 0 || index == drafts.length)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              child: Text(
+                                inspection.syncStatus ==
+                                        InspectionSyncStatus.draft
+                                    ? 'Inspeções em andamento'
+                                    : 'Histórico de inspeções',
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                            ),
+                          InspectionHistoryCard(
+                            inspection: inspection,
+                            isRetrying: retryingClientId == inspection.clientId,
+                            onRetry: () {
+                              context.read<InspectionHistoryBloc>().add(
+                                InspectionHistoryRetryRequested(
+                                  inspection.clientId,
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       );
                     },
                   ),
